@@ -53,15 +53,14 @@ template <class T>
 class Register
 {
 	public:
+		Register() {}
+		~Register() {}
 		T& operator=(const T&) = delete;
 		Register (const Register&) = delete;
-	protected:
-		Register() = default;
-		~Register() = default;
 };
 
 
-class ByteRegister : private Register<ByteRegister>
+class ByteRegister : public Register<ByteRegister>
 {
 public:
 
@@ -78,7 +77,7 @@ protected:
 	RegisterMemory mRegisterMem;
 };
 
-class FlagRegister : private ByteRegister
+class FlagRegister : public ByteRegister
 {
 	bool GetZeroFlag();
 	void SetZeroFlag(bool val);
@@ -93,24 +92,16 @@ class FlagRegister : private ByteRegister
 	void SetCarryFlag(bool val);
 };
 
-struct PairedMemory
-{
-	ByteRegister& LowerRegister;
-	ByteRegister& HigherRegister;
-};
-
 
 static_assert(sizeof(RegisterByteMemory) == 1, "RegisterByteMemory Memory Wrong Size ");
 static_assert(sizeof(FlagRegistryMemory) == 1, "FlagRegistryMemory Memory Wrong Size");
 static_assert(sizeof(RegisterMemory) == 1, "RegisterMemory Memory Wrong Size");
 
-class PairedByteRegister : private Register<PairedByteRegister>
+class PairedByteRegister : public Register<PairedByteRegister>
 {
 public:
-
-	// The deleted copy assignments for this class breaks our constructor setup here. 
-	//There's probably a nice way to do it, but for it's 2 AM so I'm using an init function fuck you.
-	void Init(ByteRegister& highRegister, ByteRegister& lowRegister);
+	PairedByteRegister(ByteRegister& highRegister, ByteRegister& lowRegister);
+	PairedByteRegister(ByteRegister& highRegister, FlagRegister& lowRegister);
 
 	void SetRegister(uint16_t value);
 	TwoByteRegisterMemory GetRegisterValue() const;
@@ -125,10 +116,11 @@ public:
 	void Decrement();
 
 private:
-	PairedMemory mRegisterMem;
+	ByteRegister& LowerRegister;
+	ByteRegister& HigherRegister;
 };
 
-class TwoByteRegister : private Register<PairedByteRegister>
+class TwoByteRegister : public Register<PairedByteRegister>
 {
 public:
 

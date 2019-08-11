@@ -70,22 +70,29 @@ void FlagRegister::SetCarryFlag(bool val)
 	mRegisterMem.StructuredFlagMemory.CarryFlag = val;
 }
 
-void PairedByteRegister::Init(ByteRegister& highRegister, ByteRegister& lowRegister)
+PairedByteRegister::PairedByteRegister(ByteRegister& highRegister, ByteRegister& lowRegister) :
+	HigherRegister(highRegister),
+	LowerRegister(lowRegister)
 {
-	mRegisterMem.HigherRegister = highRegister;
-	mRegisterMem.LowerRegister = lowRegister;
+}
+
+PairedByteRegister::PairedByteRegister(ByteRegister& highRegister, FlagRegister& lowRegister) :
+	HigherRegister(highRegister),
+	LowerRegister(lowRegister)
+{
+
 }
 
 void PairedByteRegister::SetRegister(uint16_t value)
 {
-	mRegisterMem.LowerRegister.SetRegister(static_cast<uint8_t>(value));
-	mRegisterMem.HigherRegister.SetRegister(static_cast<uint8_t>(value >> 8));
+	LowerRegister.SetRegister(static_cast<uint8_t>(value));
+	HigherRegister.SetRegister(static_cast<uint8_t>(value >> 8));
 }
 
 TwoByteRegisterMemory PairedByteRegister::GetRegisterValue() const
 {
-	uint16_t ret = (static_cast<uint16_t>(mRegisterMem.HigherRegister.GetRegisterValue().ByteMemory) << 8) 
-					| static_cast<uint16_t>(mRegisterMem.LowerRegister.GetRegisterValue().ByteMemory);
+	uint16_t ret = (static_cast<uint16_t>(HigherRegister.GetRegisterValue().ByteMemory) << 8) 
+					| static_cast<uint16_t>(LowerRegister.GetRegisterValue().ByteMemory);
 	return TwoByteRegisterMemory{ ret };
 }
 
@@ -94,11 +101,11 @@ void PairedByteRegister::SetRegisterBit(uint8_t bit, bool bitVal)
 	// TODO: Double check, does this bitshift start at 0 or 1?
 	if (bit > 7)
 	{
-		mRegisterMem.HigherRegister.SetRegisterBit(bit - 8, bitVal);
+		HigherRegister.SetRegisterBit(bit - 8, bitVal);
 	}
 	else
 	{
-		mRegisterMem.LowerRegister.SetRegisterBit(bit, bitVal);
+		LowerRegister.SetRegisterBit(bit, bitVal);
 	}
 	
 }
@@ -108,23 +115,23 @@ bool PairedByteRegister::GetRegisterBit(uint8_t bit) const
 	// TODO: Double check, does this bitshift start at 0 or 1?
 	if (bit > 7)
 	{
-		return mRegisterMem.HigherRegister.GetRegisterBit(bit - 8);
+		return HigherRegister.GetRegisterBit(bit - 8);
 	}
 	else
 	{
-		return mRegisterMem.LowerRegister.GetRegisterBit(bit);
+		return LowerRegister.GetRegisterBit(bit);
 	}
 	 
 }
 
 RegisterMemory PairedByteRegister::UpperBits()
 {
-	return mRegisterMem.HigherRegister.GetRegisterValue();
+	return HigherRegister.GetRegisterValue();
 }
 
 RegisterMemory PairedByteRegister::LowerBits()
 {
-	return mRegisterMem.LowerRegister.GetRegisterValue();
+	return LowerRegister.GetRegisterValue();
 }
 
 void PairedByteRegister::Increment()

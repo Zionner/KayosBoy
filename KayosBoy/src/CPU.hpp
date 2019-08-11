@@ -6,12 +6,31 @@
 class CPU
 {
 public:
+	CPU();
 
 protected:
-	ByteRegister a, b, c, d, e, g, h, l; // normal 8-bit registers. Can be paired.
-	FlagRegister f; // Flag register. Can be paired.
-	PairedByteRegister AF, BC, DE, HL; // Paired sets of 8-bit registers, for 16-bits.
-	TwoByteRegister sp, pc; // 16 bit stack pointer and program counter.
+	// normal 8-bit registers. Can be paired.
+	ByteRegister mRegisterA;
+	ByteRegister mRegisterB;
+	ByteRegister mRegisterC;
+	ByteRegister mRegisterD;
+	ByteRegister mRegisterE;
+	ByteRegister mRegisterG;
+	ByteRegister mRegisterH;
+	ByteRegister mRegisterL;
+
+	// Flag register. Can be paired.
+	FlagRegister mRegisterF; 
+
+	// Paired sets of 8-bit registers, for 16-bits.
+	PairedByteRegister mRegisterAF;
+	PairedByteRegister mRegisterBC;
+	PairedByteRegister mRegisterDE;
+	PairedByteRegister mRegisterHL;
+
+	// 16 bit stack pointer and program counter.
+	TwoByteRegister mStackPointer;
+	TwoByteRegister mProgramCounter;
 
 };
 
