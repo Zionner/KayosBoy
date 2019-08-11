@@ -1,0 +1,4 @@
+#ifndef _KAYOSBOYUTIL_H_
+#define _KAYOSBOYUTIL_H_
+
+#endif // _KAYOSBOYUTIL_H_
