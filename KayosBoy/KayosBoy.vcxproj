@@ -19,13 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Cartridge.cpp" />
     <ClCompile Include="src\CPU.cpp" />
     <ClCompile Include="src\KayosBoy.cpp" />
+    <ClCompile Include="src\MBC.cpp" />
     <ClCompile Include="src\registers.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Cartridge.hpp" />
     <ClInclude Include="src\CPU.hpp" />
     <ClInclude Include="src\KayosBoyUtils.hpp" />
+    <ClInclude Include="src\MBC.hpp" />
     <ClInclude Include="src\registers.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

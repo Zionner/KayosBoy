@@ -10,7 +10,7 @@ public:
 
 protected:
 	// normal 8-bit registers. Can be paired.
-	ByteRegister mRegisterA;
+	ByteRegister mRegisterA; // Accumulator Register
 	ByteRegister mRegisterB;
 	ByteRegister mRegisterC;
 	ByteRegister mRegisterD;
@@ -26,7 +26,7 @@ protected:
 	PairedByteRegister mRegisterAF;
 	PairedByteRegister mRegisterBC;
 	PairedByteRegister mRegisterDE;
-	PairedByteRegister mRegisterHL;
+	PairedByteRegister mRegisterHL; // Indirect Memory accessor
 
 	// 16 bit stack pointer and program counter.
 	TwoByteRegister mStackPointer;
