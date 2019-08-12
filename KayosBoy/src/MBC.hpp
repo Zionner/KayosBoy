@@ -5,8 +5,44 @@
 
 class BaseMBC
 {
+	public:
+		BaseMBC();
+
+	protected:
+
+};
+
+class MBC1 : public BaseMBC
+{
 public:
-	BaseMBC();
+	MBC1();
+
+protected:
+
+};
+
+class MBC2 : public BaseMBC
+{
+public:
+	MBC2();
+
+protected:
+
+};
+
+class MBC3 : public BaseMBC
+{
+public:
+	MBC3();
+
+protected:
+
+};
+
+class MBC5 : public BaseMBC
+{
+public:
+	MBC5();
 
 protected:
 
