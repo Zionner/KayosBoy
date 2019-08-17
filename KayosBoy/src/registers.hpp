@@ -59,6 +59,25 @@ class Register
 		Register (const Register&) = delete;
 };
 
+class KayosBoyPtr
+{
+public:
+	KayosBoyPtr();
+	KayosBoyPtr(uint16_t addr);
+	KayosBoyPtr(class PairedByteRegister& addr);
+	KayosBoyPtr(class TwoByteRegister& addr);
+
+	void UpdatePointerVal(uint16_t val);
+	uint16_t GetPointerVal() const;
+
+	bool operator==(KayosBoyPtr otherPtr) const;
+	KayosBoyPtr operator+(KayosBoyPtr otherPtr) const;
+	KayosBoyPtr operator-(KayosBoyPtr otherPtr) const;
+
+
+private:
+	uint16_t mAddress;
+};
 
 class ByteRegister : public Register<ByteRegister>
 {
@@ -115,9 +134,12 @@ public:
 	void Increment();
 	void Decrement();
 
+	KayosBoyPtr& RegisterAsAddress();
+
 private:
 	ByteRegister& LowerRegister;
 	ByteRegister& HigherRegister;
+	KayosBoyPtr mRegisterAsAddress;
 };
 
 class TwoByteRegister : public Register<PairedByteRegister>
@@ -136,26 +158,11 @@ public:
 	void Increment();
 	void Decrement();
 
+	KayosBoyPtr& RegisterAsAddress();
+
 private:
 	TwoByteRegisterMemory mRegisterMem;
-};
-
-class KayosBoyPtr
-{
-public:
-	KayosBoyPtr(uint16_t addr);
-	KayosBoyPtr(PairedByteRegister& addr);
-	KayosBoyPtr(TwoByteRegister& addr);
-
-	uint16_t GetPointerVal() const;
-
-	bool operator==(KayosBoyPtr otherPtr) const;
-	KayosBoyPtr operator+(KayosBoyPtr otherPtr) const;
-	KayosBoyPtr operator-(KayosBoyPtr otherPtr) const;
-
-
-private:
-	uint16_t mAddress;
+	KayosBoyPtr mRegisterAsAddress;
 };
 
 #endif // _REGISTERS_H_

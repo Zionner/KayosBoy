@@ -144,6 +144,12 @@ void PairedByteRegister::Decrement()
 	SetRegister(GetRegisterValue().PairedBytes - 1);
 }
 
+KayosBoyPtr& PairedByteRegister::RegisterAsAddress()
+{
+	mRegisterAsAddress.UpdatePointerVal(GetRegisterValue().PairedBytes);
+	return mRegisterAsAddress;
+}
+
 void TwoByteRegister::SetRegister(uint16_t value)
 {
 	mRegisterMem.PairedBytes = value;
@@ -184,6 +190,18 @@ void TwoByteRegister::Decrement()
 	mRegisterMem.PairedBytes -= 1;
 }
 
+KayosBoyPtr& TwoByteRegister::RegisterAsAddress()
+{
+	mRegisterAsAddress.UpdatePointerVal(GetRegisterValue().PairedBytes);
+	return mRegisterAsAddress;
+}
+
+KayosBoyPtr::KayosBoyPtr() :
+	mAddress(0)
+{
+
+}
+
 KayosBoyPtr::KayosBoyPtr(uint16_t addr) :
 	mAddress(addr)
 {
@@ -199,6 +217,11 @@ KayosBoyPtr::KayosBoyPtr(TwoByteRegister& addr) :
 	mAddress(addr.GetRegisterValue().PairedBytes)
 {
 
+}
+
+void KayosBoyPtr::UpdatePointerVal(uint16_t val)
+{
+	mAddress = val;
 }
 
 uint16_t KayosBoyPtr::GetPointerVal() const
