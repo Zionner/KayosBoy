@@ -3,6 +3,14 @@
 
 #include "registers.hpp"
 
+enum Condition
+{
+	NotZero,
+	Zero,
+	NotCarry,
+	Carry
+};
+
 class CPU
 {
 public:
@@ -31,6 +39,8 @@ protected:
 	// 16 bit stack pointer and program counter.
 	TwoByteRegister mStackPointer;
 	TwoByteRegister mProgramCounter;
+
+	uint64_t Tick();
 
 	// Instructions
 	// ADC
@@ -61,10 +71,10 @@ protected:
 
 	// CALL
 	void CALL();
-	void CALL(uint8_t flagCondition);
+	void CALL(Condition flagCondition);
 
 	// CFF
-	void CFF();
+	void CCF();
 
 	// CPL
 	void CPL();
@@ -101,12 +111,12 @@ protected:
 
 	// JP
 	void JP();
-	void JP(uint8_t flagCondition); // Conditions could be handled via enums. Right now it's being handled by bit comparisons.
+	void JP(Condition flagCondition);
 	void JP(KayosBoyPtr& ptr);
 
 	// JR
 	void JR();
-	void JR(uint8_t flagCondition); // Conditions could be handled via enums. Right now it's being handled by bit comparisons.
+	void JR(Condition flagCondition);
 
 	// LD
 	void LD_PC(ByteRegister& registerToSet);
@@ -115,6 +125,7 @@ protected:
 	void LD_PC(TwoByteRegister& registerToSet);
 	void LD_PCAddress(ByteRegister& registerToSet);
 	void LD_WriteToPCAddress(ByteRegister& registerToSet);
+	void LD_WriteToPCAddress(TwoByteRegister& registerToSet);
 	void LD(ByteRegister& registerToSet, ByteRegister& val);
 	void LD(ByteRegister& registerToSet, KayosBoyPtr& val);
 	void LD(TwoByteRegister& registerToSet, PairedByteRegister& val);
@@ -159,7 +170,7 @@ protected:
 
 	// RET
 	void RET();
-	void RET(uint8_t flagCondition); // Conditions could be handled via enums. Right now it's being handled by bit comparisons.
+	void RET(Condition flagCondition);
 
 	// RETI
 	void RETI();
