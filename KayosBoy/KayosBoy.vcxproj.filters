@@ -36,6 +36,9 @@
     <ClCompile Include="src\GameBoy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\KayosBoyUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\KayosBoyUtils.hpp">

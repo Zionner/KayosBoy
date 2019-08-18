@@ -1,5 +1,10 @@
 #include "registers.hpp"
 
+ByteRegister::ByteRegister(uint8_t val)
+{
+	mRegisterMem.ByteMemory = val;
+}
+
 void ByteRegister::SetRegister(uint8_t value)
 {
 	mRegisterMem.ByteMemory = value;
@@ -28,6 +33,12 @@ void ByteRegister::IncrementRegister()
 void ByteRegister::DecrementRegister()
 {
 	mRegisterMem.ByteMemory -= 1;
+}
+
+FlagRegister::FlagRegister(uint8_t val) :
+	ByteRegister(val)
+{
+
 }
 
 bool FlagRegister::GetZeroFlag()

@@ -3,7 +3,7 @@
 
 #include "registers.hpp"
 
-enum Condition
+enum Condition : uint8_t
 {
 	NotZero,
 	Zero,

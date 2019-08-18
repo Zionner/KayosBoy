@@ -3,6 +3,12 @@
 
 #include "registers.hpp"
 
+enum MemoryState : uint8_t
+{
+	MS_BootRomLoaded = 0x00,
+	MS_CartridgeLoaded = 0x01,
+};
+
 class Memory
 {
 	public:

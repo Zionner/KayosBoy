@@ -2,15 +2,9 @@
 #define _KAYOSBOYUTIL_H_
 
 #include "Cartridge.hpp"
+#include <iostream>
+#include <fstream>
 
-Cartridge& Cartridge::LoadCartridgeFromMemory(void* cartMem)
-{
-	return Cartridge();
-}
-
-Cartridge& Cartridge::LoadCartridgeFromFile(char* path)
-{
-	return Cartridge();
-}
+size_t LoadBinaryFile(char* const path, uint8_t** ptr);
 
 #endif // _KAYOSBOYUTIL_H_

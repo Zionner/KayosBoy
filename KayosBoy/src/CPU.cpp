@@ -1,6 +1,15 @@
 #include "CPU.hpp"
 
 CPU::CPU() :
+	mRegisterA(0), // Accumulator Register
+	mRegisterB(0),
+	mRegisterC(0),
+	mRegisterD(0),
+	mRegisterE(0),
+	mRegisterF(0),
+	mRegisterG(0),
+	mRegisterH(0),
+	mRegisterL(0),
 	mRegisterAF(mRegisterA, mRegisterF),
 	mRegisterBC(mRegisterB, mRegisterC),
 	mRegisterDE(mRegisterD, mRegisterE),

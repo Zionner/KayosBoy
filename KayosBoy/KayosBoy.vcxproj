@@ -23,6 +23,7 @@
     <ClCompile Include="src\CPU.cpp" />
     <ClCompile Include="src\GameBoy.cpp" />
     <ClCompile Include="src\KayosBoy.cpp" />
+    <ClCompile Include="src\KayosBoyUtils.cpp" />
     <ClCompile Include="src\MBC.cpp" />
     <ClCompile Include="src\memory.cpp" />
     <ClCompile Include="src\registers.cpp" />
@@ -132,6 +133,9 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data\*" "$(TargetDir)data\" /S /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -170,6 +174,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY "$(ProjectDir)data\*" "$(TargetDir)data\" /S /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

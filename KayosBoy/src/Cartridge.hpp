@@ -20,6 +20,7 @@ enum CartridgeReservedAddresses : uint16_t
 	CRA_ExecutionEntryPoint = 0x0100,
 	CRA_NintendoLogo = 0x0104,
 	CRA_GameTitle = 0x0134,
+	CRA_ManufacturerCode = 0x013F, // GBC only
 	CRA_GBCFlag = 0x0143,
 	CRA_LicenseHighNibble = 0x0144,
 	CRA_LicenseLowNibble = 0x0145,
@@ -31,7 +32,8 @@ enum CartridgeReservedAddresses : uint16_t
 	CRA_OldLicenseeCodeFlag = 0x014B,
 	CRA_MaskRomVersionNumber = 0x014C,
 	CRA_ComplimentCheck = 0x014D,
-	CRA_Checksum = 0x014E
+	CRA_Checksum = 0x014E,
+	CRA_HeaderEnd = 0x014F // This is still the checksum above, but it's the last byte we want in the header, so I'm including it here.
 };
 
 
@@ -42,7 +44,8 @@ enum CartridgeRamSize : uint8_t
 	CRAM_2KByte = 0x01,
 	CRAM_8KByte = 0x02,
 	CRAM_32KByte = 0x03,
-	CRAM_128KByte = 0x04
+	CRAM_128KByte = 0x04,
+	CRAM_64KByte = 0x05,
 };
 
 enum CartridgeRomSize : uint8_t
@@ -54,10 +57,10 @@ enum CartridgeRomSize : uint8_t
 	CROM_512KByte = 0x04,
 	CROM_1024KByte = 0x05,
 	CROM_2048KByte = 0x06,
-	CROM_1127KByte = 0x52,
-	CROM_1229KByte = 0x53,
-	CROM_1536KByte = 0x54
+	CROM_4096KByte = 0x07,
+	CROM_8192KByte = 0x08,
 };
+
 
 enum CartridgeType : uint8_t
 {
@@ -66,7 +69,7 @@ enum CartridgeType : uint8_t
 	CT_RomMBC1Ram = 0x02,
 	CT_RomMBC1RamBatt = 0x03,
 	CT_RomMBC2 = 0x05,
-	CT_RomMBC2Battery = 0x06,
+	CT_RomMBC2RamBattery = 0x06,
 	CT_RomRam = 0x08,
 	CT_RomRamBattery = 0x09,
 	CT_RomMMM1 = 0x0B,
@@ -83,19 +86,21 @@ enum CartridgeType : uint8_t
 	CT_RomMBC5Rumble = 0x1C,
 	CT_RomMBC5RumbleSRam = 0x1D,
 	CT_RomMBC5RumbleSRamBatt = 0x1E,
-	CT_PocketCamera = 0x1F,
+	CT_MBC6RamBatt = 0x20,
+	CT_MBC7RamBattAccel = 0x22,
+	CT_PocketCamera = 0xFC,
 	CT_BandaiTAMA5 = 0xFD,
 	CT_HudsonHuC3 = 0xFE,
-	CT_HudsonHuC1 = 0xFF
+	CT_HudsonHuC1RamBattery = 0xFF
 };
 
-enum CartridgeLocalization
+enum CartridgeLocalization : uint8_t
 {
 	CL_Japanese = 0x00,
 	CL_AnywhereElse = 0x01
 };
 
-enum CartridgeOldLicenseeCode
+enum CartridgeOldLicenseeCode : uint8_t
 {
 	COLC_CheckNibbles = 0x33,
 	COLC_Accolade = 0x79,
@@ -113,7 +118,7 @@ struct CartridgeHeader
 	CartridgeSuperGameboyFlag SuperGameboyFlag; // 0x0146
 	CartridgeType CartridgeTypeFlag; // 0x0147
 	CartridgeRomSize CartridgeRomSizeFlag; // 0x0148
-	CartridgeRamSize CartridgeRamSizeFlag; // 0x0149
+	CartridgeRamSize CartridgeRamSizeFlag; // 0x0149 - IN MBC2 cartridges this value is 0x00, but the MBC chip has an internal ram of 512x4bit
 	CartridgeLocalization CartridgeLocalizationFlag; // 0x014A
 	CartridgeOldLicenseeCode CartridgeOldLicenseeFlag; // 0x014B
 	uint8_t CartridgeRomVersionFlag; // 0x014C
@@ -125,6 +130,7 @@ class Cartridge
 {
 public:
 	Cartridge();
+	Cartridge(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
 
 protected:
 	CartridgeHeader mCartridgeHeader;

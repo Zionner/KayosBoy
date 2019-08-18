@@ -82,7 +82,7 @@ private:
 class ByteRegister : public Register<ByteRegister>
 {
 public:
-
+	ByteRegister(uint8_t val);
 	void SetRegister(uint8_t value);
 	RegisterMemory GetRegisterValue() const;
 
@@ -98,6 +98,8 @@ protected:
 
 class FlagRegister : public ByteRegister
 {
+public:
+	FlagRegister(uint8_t val);
 	bool GetZeroFlag();
 	void SetZeroFlag(bool val);
 
