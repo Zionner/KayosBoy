@@ -39,7 +39,7 @@ bool Cartridge::InitCartridge(uint8_t* romData, size_t romSize, uint8_t* ramData
 {
 	if (romSize == 0)
 	{
-		printf("Trying to create a cartridge with a rom of 0. Error!");
+		printf("Trying to create a cartridge with a rom of 0. Error! \n");
 		return false;
 	}
 
@@ -63,7 +63,7 @@ bool Cartridge::InitCartridge(uint8_t* romData, size_t romSize, uint8_t* ramData
 		mCartridgeMBC = new MBC5(romData, romSize, ramData, ramSize);
 		break;
 	default:
-		printf("Unknown/Unsupported Cartridge type");
+		printf("Unknown/Unsupported Cartridge type \n");
 		break;
 	}
 
@@ -87,7 +87,7 @@ bool Cartridge::LoadCartridgeFromFile(char* const romPath, char* ramPath)
 
 	if (ramRet == 0)
 	{
-		printf("No cartridge RAM found.");
+		printf("No cartridge RAM found. \n");
 	}
 
 	InitCartridge(rawCartridgeRom, romRet, rawCartridgeRam, ramRet);

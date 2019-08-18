@@ -331,7 +331,7 @@ void CPU::CPL()
 // DAA
 void CPU::DAA()
 {
-	printf("DAA Unimplemented");
+	printf("DAA Unimplemented \n");
 }
 
 // DEC
@@ -380,7 +380,7 @@ void CPU::EI()
 // HALT
 void CPU::HALT()
 {
-	printf("HALT Unimplemented");
+	printf("HALT Unimplemented \n");
 	// TODO
 }
 
@@ -537,22 +537,22 @@ void CPU::LDD(KayosBoyPtr& ptrToSet, ByteRegister& val)
 // LDH
 void CPU::LDH_A()
 {
-	printf("LDH_A Unimplemented");
+	printf("LDH_A Unimplemented \n");
 }
 
 void CPU::LDH_PC()
 {
-	printf("LDH_PC Unimplemented");
+	printf("LDH_PC Unimplemented \n");
 }
 
 void CPU::LDH_C()
 {
-	printf("LDH_C Unimplemented");
+	printf("LDH_C Unimplemented \n");
 }
 
 void CPU::LDH_CAddr_A()
 {
-	printf("LDH_CAddr_A Unimplemented");
+	printf("LDH_CAddr_A Unimplemented \n");
 }
 
 // LDHL
@@ -667,69 +667,69 @@ void CPU::RETI()
 // RLA
 void CPU::RLA()
 {
-	printf("RLA not implemented");
+	printf("RLA not implemented \n");
 }
 
 // RLCA
 void CPU::RLCA()
 {
-	printf("RLCA not implemented");
+	printf("RLCA not implemented \n");
 }
 
 // RLC
 void CPU::RLC(ByteRegister& registerToRotate)
 {
-	printf("RLC not implemented");
+	printf("RLC not implemented \n");
 }
 
 void CPU::RLC(KayosBoyPtr& addressToByteToRotate)
 {
-	printf("RLC not implemented");
+	printf("RLC not implemented \n");
 }
 
 // RL
 void CPU::RL(ByteRegister& registerToRotate)
 {
-	printf("RL not implemented");
+	printf("RL not implemented \n");
 }
 
 void CPU::RL(KayosBoyPtr& addressToByteToRotate)
 {
-	printf("RL not implemented");
+	printf("RL not implemented \n");
 }
 
 // RRA
 void CPU::RRA()
 {
-	printf("RRA not implemented");
+	printf("RRA not implemented \n");
 }
 
 // RRCA
 void CPU::RRCA()
 {
-	printf("RRCA not implemented");
+	printf("RRCA not implemented \n");
 }
 
 // RRC
 void CPU::RRC(ByteRegister& registerToRotate)
 {
-	printf("RRC not implemented");
+	printf("RRC not implemented \n");
 }
 
 void CPU::RRC(KayosBoyPtr& addressToByteToRotate)
 {
-	printf("RRC not implemented");
+	printf("RRC not implemented \n");
 }
 
 // RR
 void CPU::RR(ByteRegister& registerToRotate)
 {
-	printf("RR not implemented");
+	printf("RR not implemented \n");
 }
 
 void CPU::RR(KayosBoyPtr& addressToByteToRotate)
 {
-	printf("RR not implemented");
+	printf("RR not implemented \n");
 }
 
 // RST
@@ -742,28 +742,28 @@ void CPU::RST(uint8_t offset)
 // SBC
 void CPU::SBC()
 {
-	printf("SBC not implemented");
+	printf("SBC not implemented \n");
 }
 
 void CPU::SBC(uint8_t val)
 {
-	printf("SBC not implemented");
+	printf("SBC not implemented \n");
 }
 
 void CPU::SBC(ByteRegister& val)
 {
-	printf("SBC not implemented");
+	printf("SBC not implemented \n");
 }
 
 void CPU::SBC(KayosBoyPtr& ptrToVal)
 {
-	printf("SBC not implemented");
+	printf("SBC not implemented \n");
 }
 
 // SCF
 void CPU::SCF()
 {
-	printf("SCF not implemented");
+	printf("SCF not implemented \n");
 }
 
 // SET
@@ -782,45 +782,45 @@ void CPU::SET(uint8_t bit, KayosBoyPtr& addressToByteToSet)
 // SLA
 void CPU::SLA(ByteRegister& registerToShift)
 {
-	printf("SLA not implemented");
+	printf("SLA not implemented \n");
 }
 
 void CPU::SLA(KayosBoyPtr& addressToByteToShift)
 {
-	printf("SLA not implemented");
+	printf("SLA not implemented \n");
 }
 
 // SRA
 void CPU::SRA(ByteRegister& registerToShift)
 {
-	printf("SRA not implemented");
+	printf("SRA not implemented \n");
 }
 
 void CPU::SRA(KayosBoyPtr& addressToByteToShift)
 {
-	printf("SRA not implemented");
+	printf("SRA not implemented \n");
 }
 
 // SRL
 void CPU::SRL(ByteRegister& registerToShift)
 {
-	printf("SRL not implemented");
+	printf("SRL not implemented \n");
 }
 
 void CPU::SRL(KayosBoyPtr& addressToByteToShift)
 {
-	printf("SRL not implemented");
+	printf("SRL not implemented \n");
 }
 
 // SWAP
 void CPU::SWAP(ByteRegister& registerToSwap)
 {
-	printf("SWAP not implemented");
+	printf("SWAP not implemented \n");
 }
 
 void CPU::SWAP(KayosBoyPtr& addressToByteToSwap)
 {
-	printf("SWAP not implemented");
+	printf("SWAP not implemented \n");
 }
 
 // STOP
@@ -832,43 +832,43 @@ void CPU::STOP()
 // SUB
 void CPU::SUB()
 {
-	printf("SUB not implemented");
+	printf("SUB not implemented \n");
 }
 
 void CPU::SUB(uint8_t val)
 {
-	printf("SUB not implemented");
+	printf("SUB not implemented \n");
 }
 
 void CPU::SUB(ByteRegister& val)
 {
-	printf("SUB not implemented");
+	printf("SUB not implemented \n");
 }
 
 void CPU::SUB(KayosBoyPtr& ptrToVal)
 {
-	printf("SUB not implemented");
+	printf("SUB not implemented \n");
 }
 
 // XOR
 void CPU::XOR()
 {
-	printf("SUB not implemented");
+	printf("SUB not implemented \n");
 }
 
 void CPU::XOR(uint8_t val)
 {
-	printf("SUB not implemented");
+	printf("SUB not implemented \n");
 }
 
 void CPU::XOR(ByteRegister& val)
 {
-	printf("SUB not implemented");
+	printf("SUB not implemented \n");
 }
 
 void CPU::XOR(KayosBoyPtr& ptrToVal)
 {
-	printf("SUB not implemented");
+	printf("SUB not implemented \n");
 }
 
 // OPCODES 0X

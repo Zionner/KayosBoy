@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
 	if (argc < (2 + index))
 	{
-		printf("Did not supply require arguments. Need a path to boot rom and cartridge rom. Optional cartridge ram.");
+		printf("Did not supply require arguments. Need a path to boot rom and cartridge rom. Optional cartridge ram. \n");
 	}
 
 	Cartridge cart(argv[index + 1], ((argc == (2 + index)) ? nullptr : argv[index + 2]));

@@ -145,7 +145,7 @@ uint16_t Memory::ReadTwoBytesAtPointer(KayosBoyPtr ptr)
 	}
 	else if (addr == 0xFFFF)
 	{
-		printf("ERROR: Trying to get two bytes from addr 0xFFFF");
+		printf("ERROR: Trying to get two bytes from addr 0xFFFF \n");
 		return -1; // This will overflow, on purpose.
 	}
 
@@ -232,7 +232,7 @@ void Memory::WriteTwoBytesAtPointer(KayosBoyPtr ptr, uint16_t val)
 	}
 	else if (addr == 0xFFFF)
 	{
-		printf("ERROR: Trying to get two bytes from addr 0xFFFF");
+		printf("ERROR: Trying to get two bytes from addr 0xFFFF \n");
 		mInterruptRegister = static_cast<uint8_t>(mInterruptRegister);
 	}
 }
