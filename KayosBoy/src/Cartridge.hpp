@@ -129,16 +129,20 @@ struct CartridgeHeader
 class Cartridge
 {
 public:
-	Cartridge();
+	Cartridge(char* const pathToCartridgeRom, char* const pathToCartridgeRam = nullptr);
 	~Cartridge();
-	Cartridge(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
 
 	void write(KayosBoyPtr& address, uint8_t val);
+	void writeTwoBytes(KayosBoyPtr& address, uint16_t val);
 	uint8_t read(KayosBoyPtr& address);
+	uint16_t readTwoBytes(KayosBoyPtr& address);
 
 protected:
 	CartridgeHeader mCartridgeHeader;
 	BaseMBC* mCartridgeMBC;
+
+	bool InitCartridge(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
+	bool LoadCartridgeFromFile(char* const romPath, char* ramPath);
 };
 
 #endif // _CARTRIDGE_H_

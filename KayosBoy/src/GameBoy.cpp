@@ -1,14 +1,14 @@
 #include "GameBoy.hpp"
 #include "KayosBoyUtils.hpp"
 
-GameBoy::GameBoy(CPU& gameboyCPU, Memory& gameboyMemory, char* const pathToBootRom, char* const pathToCartridgeRom, char* const pathToCartridgeRam) :
+GameBoy::GameBoy(char* const pathToBootRom, CPU& gameboyCPU, Memory& gameboyMemory, Cartridge& cart) :
 	mCycleCount(0),
 	mCPU(gameboyCPU),
 	mMemory(gameboyMemory),
-	mKeepRunning(true)
+	mKeepRunning(true),
+	mCartridge(cart)
 {
 	LoadBootROM(pathToBootRom);
-	LoadCartridgeFromFile(pathToCartridgeRom, pathToCartridgeRam);
 }
 
 bool GameBoy::LoadBootROM(char* const path)
@@ -17,36 +17,15 @@ bool GameBoy::LoadBootROM(char* const path)
 	return mBootRomSize != 0;
 }
 
-bool GameBoy::LoadCartridgeFromFile(char* const romPath, char* ramPath)
+void GameBoy::Run()
 {
-	uint8_t* rawCartridgeRom = nullptr;
-	uint8_t* rawCartridgeRam = nullptr;
-
-	size_t romRet = LoadBinaryFile(romPath, &rawCartridgeRom);
-
-	if (romRet == 0)
+	while (mKeepRunning)
 	{
-		delete[] rawCartridgeRom;
-		return false;
+		Tick();
 	}
-
-	size_t ramRet = LoadBinaryFile(ramPath, &rawCartridgeRam);
-
-	if (ramRet == 0)
-	{
-		printf("No cartridge RAM found.");
-	}
-
-	mCartridge = Cartridge(rawCartridgeRom, romRet, rawCartridgeRam, ramRet);
-
-	delete[] rawCartridgeRom;
-	delete[] rawCartridgeRam;
-
-	return true;
 }
 
 void GameBoy::Tick()
 {
-	while(mKeepRunning)
 	mCycleCount += mCPU.Tick();
 }

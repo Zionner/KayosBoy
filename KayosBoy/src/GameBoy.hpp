@@ -8,11 +8,12 @@
 class GameBoy
 {
 	public:
-		GameBoy(CPU& gameboyCPU, Memory& gameboyMemory, char* const pathToBootRom, char* const pathToCartridgeRom, char* const pathToCartridgeRam = nullptr);
+		GameBoy(char* const pathToBootRom, CPU& gameboyCPU, Memory& gameboyMemory, Cartridge& cart);
+
+		void Run();
 
 	protected:
 		bool LoadBootROM(char* path);
-		bool LoadCartridgeFromFile(char* romPath, char* ramPath);
 
 		void Tick();
 
@@ -25,7 +26,7 @@ class GameBoy
 
 		CPU& mCPU;
 		Memory& mMemory;
-		Cartridge mCartridge;
+		Cartridge& mCartridge;
 
 		// We're loading these from files instead of from a const value
 		// Because it allows us to nicely support multiple boot ROMs (and custom boot ROMS).
