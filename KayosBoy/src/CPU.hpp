@@ -1,7 +1,7 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
-#include "registers.hpp"
+#include "memory.hpp"
 
 enum Condition : uint8_t
 {
@@ -14,9 +14,13 @@ enum Condition : uint8_t
 class CPU
 {
 public:
-	CPU();
+	CPU(Memory& mem);
 
 protected:
+	bool mIsInterruptsEnabled;
+
+	Memory& mMemory;
+
 	// normal 8-bit registers. Can be paired.
 	ByteRegister mRegisterA; // Accumulator Register
 	ByteRegister mRegisterB;
@@ -40,7 +44,21 @@ protected:
 	TwoByteRegister mStackPointer;
 	TwoByteRegister mProgramCounter;
 
+	uint64_t mTickElapsedCycles;
+
 	uint64_t Tick();
+
+	uint8_t ReadByteFromProgramCounter();
+	uint16_t ReadTwoBytesFromProgramCounter();
+	KayosBoyPtr ReadAddressFromProgramCounter();
+
+	bool IsCPUInCondition(Condition condition);
+
+	void PushOntoStackPointer(uint16_t val);
+	void PushOntoStackPointer(PairedByteRegister& reg);
+	void PushOntoStackPointer(TwoByteRegister& reg);
+	void PopFromStackPointer(PairedByteRegister& reg);
+	void PopFromStackPointer(TwoByteRegister& reg);
 
 	// Instructions
 	// ADC

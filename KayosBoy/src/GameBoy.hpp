@@ -8,7 +8,7 @@
 class GameBoy
 {
 	public:
-		GameBoy(char* const pathToBootRom, char* const pathToCartridgeRom, char* const pathToCartridgeRam = nullptr);
+		GameBoy(CPU& gameboyCPU, Memory& gameboyMemory, char* const pathToBootRom, char* const pathToCartridgeRom, char* const pathToCartridgeRam = nullptr);
 
 	protected:
 		bool LoadBootROM(char* path);
@@ -19,8 +19,8 @@ class GameBoy
 
 		uint64_t mCycleCount;
 
-		CPU mCPU;
-		Memory mMemory;
+		CPU& mCPU;
+		Memory& mMemory;
 		Cartridge mCartridge;
 
 		// We're loading these from files instead of from a const value

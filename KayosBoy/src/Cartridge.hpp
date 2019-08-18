@@ -111,7 +111,7 @@ struct CartridgeHeader
 {
 	uint8_t ExecutionStart[4]; // 0x0100-0x103
 	uint8_t NintendoLogo[48]; // 0x0104-0x0133
-	unsigned char GameTitle[16]; // 0x0134-0x0142
+	unsigned char GameTitle[15]; // 0x0134-0x0142
 	CartridgeGameboyColourFlag GameboyColourFlag; // 0x0143
 	uint8_t LicenseHighNibble; // 0x0144
 	uint8_t LicenseLowNibble; // 0x0145
@@ -130,12 +130,14 @@ class Cartridge
 {
 public:
 	Cartridge();
+	~Cartridge();
 	Cartridge(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
+
+	void write(KayosBoyPtr& address, uint8_t val);
+	uint8_t read(KayosBoyPtr& address);
 
 protected:
 	CartridgeHeader mCartridgeHeader;
-	void* mCartridgeRom;
-	void* mCartridgeRam;
 	BaseMBC* mCartridgeMBC;
 };
 

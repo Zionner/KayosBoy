@@ -6,16 +6,34 @@
 class BaseMBC
 {
 	public:
-		BaseMBC();
+		BaseMBC(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
+
+		virtual void write(KayosBoyPtr& address, uint8_t val) = 0;
+		virtual uint8_t read(KayosBoyPtr& address) = 0;
 
 	protected:
+
+};
+
+class NoMBC : public BaseMBC
+{
+public:
+	NoMBC(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
+
+	void write(KayosBoyPtr& address, uint8_t val);
+	uint8_t read(KayosBoyPtr& address);
+
+protected:
 
 };
 
 class MBC1 : public BaseMBC
 {
 public:
-	MBC1();
+	MBC1(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
+
+	void write(KayosBoyPtr& address, uint8_t val);
+	uint8_t read(KayosBoyPtr& address);
 
 protected:
 
@@ -24,7 +42,10 @@ protected:
 class MBC2 : public BaseMBC
 {
 public:
-	MBC2();
+	MBC2(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
+
+	void write(KayosBoyPtr& address, uint8_t val);
+	uint8_t read(KayosBoyPtr& address);
 
 protected:
 
@@ -33,7 +54,10 @@ protected:
 class MBC3 : public BaseMBC
 {
 public:
-	MBC3();
+	MBC3(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
+
+	void write(KayosBoyPtr& address, uint8_t val);
+	uint8_t read(KayosBoyPtr& address);
 
 protected:
 
@@ -42,7 +66,10 @@ protected:
 class MBC5 : public BaseMBC
 {
 public:
-	MBC5();
+	MBC5(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize);
+
+	void write(KayosBoyPtr& address, uint8_t val);
+	uint8_t read(KayosBoyPtr& address);
 
 protected:
 

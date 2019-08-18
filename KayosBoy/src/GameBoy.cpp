@@ -1,8 +1,10 @@
 #include "GameBoy.hpp"
 #include "KayosBoyUtils.hpp"
 
-GameBoy::GameBoy(char* const pathToBootRom, char* const pathToCartridgeRom, char* const pathToCartridgeRam) :
-	mCycleCount(0)
+GameBoy::GameBoy(CPU& gameboyCPU, Memory& gameboyMemory, char* const pathToBootRom, char* const pathToCartridgeRom, char* const pathToCartridgeRam) :
+	mCycleCount(0),
+	mCPU(gameboyCPU),
+	mMemory(gameboyMemory)
 {
 	LoadBootROM(pathToBootRom);
 	LoadCartridgeFromFile(pathToCartridgeRom, pathToCartridgeRam);

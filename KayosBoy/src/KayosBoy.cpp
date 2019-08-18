@@ -8,6 +8,8 @@
 int main(int argc, char* argv[])
 {
 	uint8_t index = 0;
+	Memory memory;
+	CPU gameboyCpu(memory);
 
 #ifdef _WIN32
 	if (IsDebuggerPresent())
@@ -23,11 +25,11 @@ int main(int argc, char* argv[])
 
 	if (argc == (2 + index))
 	{
-		GameBoy cpuTest(argv[index], argv[index + 1]);
+		GameBoy cpuTest(gameboyCpu, memory, argv[index], argv[index + 1]);
 	}
 	else if (argc > (2 + index))
 	{
-		GameBoy cpuTest(argv[index], argv[index + 1], argv[index + 2]);
+		GameBoy cpuTest(gameboyCpu, memory, argv[index], argv[index + 1], argv[index + 2]);
 	}
 	
 
