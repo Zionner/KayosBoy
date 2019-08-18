@@ -17,7 +17,7 @@ CPU::CPU(Memory& mem) :
 	mRegisterHL(mRegisterH, mRegisterL),
 	mMemory(mem)
 {
-
+	SetupCommandStructure();
 }
 
 void CPU::PushOntoStackPointer(uint16_t val) 
@@ -106,6 +106,10 @@ KayosBoyPtr CPU::ReadAddressFromProgramCounter()
 uint64_t CPU::Tick()
 {
 	mTickElapsedCycles = 0;
+
+	uint8_t opcode = ReadByteFromProgramCounter();
+	(this->*mOpCodeCommands[opcode])();
+
 	return mTickElapsedCycles;
 }
 
@@ -1826,7 +1830,7 @@ void CPU::_BA()
 	CP(mRegisterD);
 }
 
-void CPU::_BB()
+void CPU::_BB_()
 {
 	CP(mRegisterE);
 }
@@ -1863,7 +1867,7 @@ void CPU::_C1()
 	POP(mRegisterBC);
 }
 
-void CPU::_C2()
+void CPU::_C2_()
 {
 	JP(NotZero);
 }
@@ -1911,6 +1915,8 @@ void CPU::_CA()
 void CPU::_CB()
 {
 	// PREFIX
+	uint8_t newOpCode = ReadByteFromProgramCounter();
+	(this->*mCBOpCodeCommands[newOpCode])();
 }
 
 void CPU::_CC()
@@ -3489,4 +3495,565 @@ void CPU::_CBFE()
 void CPU::_CBFF()
 {
 	SET(7, mRegisterA);
+}
+
+void CPU::SetupCommandStructure()
+{
+	// Opcodes 0x0X
+	mOpCodeCommands.push_back(&CPU::_00);
+	mOpCodeCommands.push_back(&CPU::_01);
+	mOpCodeCommands.push_back(&CPU::_02);
+	mOpCodeCommands.push_back(&CPU::_03);
+	mOpCodeCommands.push_back(&CPU::_04);
+	mOpCodeCommands.push_back(&CPU::_05);
+	mOpCodeCommands.push_back(&CPU::_06);
+	mOpCodeCommands.push_back(&CPU::_07);
+	mOpCodeCommands.push_back(&CPU::_08);
+	mOpCodeCommands.push_back(&CPU::_09);
+	mOpCodeCommands.push_back(&CPU::_0A);
+	mOpCodeCommands.push_back(&CPU::_0B);
+	mOpCodeCommands.push_back(&CPU::_0C);
+	mOpCodeCommands.push_back(&CPU::_0D);
+	mOpCodeCommands.push_back(&CPU::_0E);
+	mOpCodeCommands.push_back(&CPU::_0F);
+
+	// Opcodes 0x1X
+	mOpCodeCommands.push_back(&CPU::_10);
+	mOpCodeCommands.push_back(&CPU::_11);
+	mOpCodeCommands.push_back(&CPU::_12);
+	mOpCodeCommands.push_back(&CPU::_13);
+	mOpCodeCommands.push_back(&CPU::_14);
+	mOpCodeCommands.push_back(&CPU::_15);
+	mOpCodeCommands.push_back(&CPU::_16);
+	mOpCodeCommands.push_back(&CPU::_17);
+	mOpCodeCommands.push_back(&CPU::_18);
+	mOpCodeCommands.push_back(&CPU::_19);
+	mOpCodeCommands.push_back(&CPU::_1A);
+	mOpCodeCommands.push_back(&CPU::_1B);
+	mOpCodeCommands.push_back(&CPU::_1C);
+	mOpCodeCommands.push_back(&CPU::_1D);
+	mOpCodeCommands.push_back(&CPU::_1E);
+	mOpCodeCommands.push_back(&CPU::_1F);
+
+	// Opcodes 0x2X
+	mOpCodeCommands.push_back(&CPU::_20);
+	mOpCodeCommands.push_back(&CPU::_21);
+	mOpCodeCommands.push_back(&CPU::_22);
+	mOpCodeCommands.push_back(&CPU::_23);
+	mOpCodeCommands.push_back(&CPU::_24);
+	mOpCodeCommands.push_back(&CPU::_25);
+	mOpCodeCommands.push_back(&CPU::_26);
+	mOpCodeCommands.push_back(&CPU::_27);
+	mOpCodeCommands.push_back(&CPU::_28);
+	mOpCodeCommands.push_back(&CPU::_29);
+	mOpCodeCommands.push_back(&CPU::_2A);
+	mOpCodeCommands.push_back(&CPU::_2B);
+	mOpCodeCommands.push_back(&CPU::_2C);
+	mOpCodeCommands.push_back(&CPU::_2D);
+	mOpCodeCommands.push_back(&CPU::_2E);
+	mOpCodeCommands.push_back(&CPU::_2F);
+
+	// Opcodes 0x3X
+	mOpCodeCommands.push_back(&CPU::_30);
+	mOpCodeCommands.push_back(&CPU::_31);
+	mOpCodeCommands.push_back(&CPU::_32);
+	mOpCodeCommands.push_back(&CPU::_33);
+	mOpCodeCommands.push_back(&CPU::_34);
+	mOpCodeCommands.push_back(&CPU::_35);
+	mOpCodeCommands.push_back(&CPU::_36);
+	mOpCodeCommands.push_back(&CPU::_37);
+	mOpCodeCommands.push_back(&CPU::_38);
+	mOpCodeCommands.push_back(&CPU::_39);
+	mOpCodeCommands.push_back(&CPU::_3A);
+	mOpCodeCommands.push_back(&CPU::_3B);
+	mOpCodeCommands.push_back(&CPU::_3C);
+	mOpCodeCommands.push_back(&CPU::_3D);
+	mOpCodeCommands.push_back(&CPU::_3E);
+	mOpCodeCommands.push_back(&CPU::_3F);
+
+	// Opcodes 0x4X
+	mOpCodeCommands.push_back(&CPU::_40);
+	mOpCodeCommands.push_back(&CPU::_41);
+	mOpCodeCommands.push_back(&CPU::_42);
+	mOpCodeCommands.push_back(&CPU::_43);
+	mOpCodeCommands.push_back(&CPU::_44);
+	mOpCodeCommands.push_back(&CPU::_45);
+	mOpCodeCommands.push_back(&CPU::_46);
+	mOpCodeCommands.push_back(&CPU::_47);
+	mOpCodeCommands.push_back(&CPU::_48);
+	mOpCodeCommands.push_back(&CPU::_49);
+	mOpCodeCommands.push_back(&CPU::_4A);
+	mOpCodeCommands.push_back(&CPU::_4B);
+	mOpCodeCommands.push_back(&CPU::_4C);
+	mOpCodeCommands.push_back(&CPU::_4D);
+	mOpCodeCommands.push_back(&CPU::_4E);
+	mOpCodeCommands.push_back(&CPU::_4F);
+
+	// Opcodes 0x5X
+	mOpCodeCommands.push_back(&CPU::_50);
+	mOpCodeCommands.push_back(&CPU::_51);
+	mOpCodeCommands.push_back(&CPU::_52);
+	mOpCodeCommands.push_back(&CPU::_53);
+	mOpCodeCommands.push_back(&CPU::_54);
+	mOpCodeCommands.push_back(&CPU::_55);
+	mOpCodeCommands.push_back(&CPU::_56);
+	mOpCodeCommands.push_back(&CPU::_57);
+	mOpCodeCommands.push_back(&CPU::_58);
+	mOpCodeCommands.push_back(&CPU::_59);
+	mOpCodeCommands.push_back(&CPU::_5A);
+	mOpCodeCommands.push_back(&CPU::_5B);
+	mOpCodeCommands.push_back(&CPU::_5C);
+	mOpCodeCommands.push_back(&CPU::_5D);
+	mOpCodeCommands.push_back(&CPU::_5E);
+	mOpCodeCommands.push_back(&CPU::_5F);
+
+	// Opcodes 0x6X
+	mOpCodeCommands.push_back(&CPU::_60);
+	mOpCodeCommands.push_back(&CPU::_61);
+	mOpCodeCommands.push_back(&CPU::_62);
+	mOpCodeCommands.push_back(&CPU::_63);
+	mOpCodeCommands.push_back(&CPU::_64);
+	mOpCodeCommands.push_back(&CPU::_65);
+	mOpCodeCommands.push_back(&CPU::_66);
+	mOpCodeCommands.push_back(&CPU::_67);
+	mOpCodeCommands.push_back(&CPU::_68);
+	mOpCodeCommands.push_back(&CPU::_69);
+	mOpCodeCommands.push_back(&CPU::_6A);
+	mOpCodeCommands.push_back(&CPU::_6B);
+	mOpCodeCommands.push_back(&CPU::_6C);
+	mOpCodeCommands.push_back(&CPU::_6D);
+	mOpCodeCommands.push_back(&CPU::_6E);
+	mOpCodeCommands.push_back(&CPU::_6F);
+
+	// Opcodes 0x7X
+	mOpCodeCommands.push_back(&CPU::_70);
+	mOpCodeCommands.push_back(&CPU::_71);
+	mOpCodeCommands.push_back(&CPU::_72);
+	mOpCodeCommands.push_back(&CPU::_73);
+	mOpCodeCommands.push_back(&CPU::_74);
+	mOpCodeCommands.push_back(&CPU::_75);
+	mOpCodeCommands.push_back(&CPU::_76);
+	mOpCodeCommands.push_back(&CPU::_77);
+	mOpCodeCommands.push_back(&CPU::_78);
+	mOpCodeCommands.push_back(&CPU::_79);
+	mOpCodeCommands.push_back(&CPU::_7A);
+	mOpCodeCommands.push_back(&CPU::_7B);
+	mOpCodeCommands.push_back(&CPU::_7C);
+	mOpCodeCommands.push_back(&CPU::_7D);
+	mOpCodeCommands.push_back(&CPU::_7E);
+	mOpCodeCommands.push_back(&CPU::_7F);
+
+	// Opcodes 0x8X
+	mOpCodeCommands.push_back(&CPU::_80);
+	mOpCodeCommands.push_back(&CPU::_81);
+	mOpCodeCommands.push_back(&CPU::_82);
+	mOpCodeCommands.push_back(&CPU::_83);
+	mOpCodeCommands.push_back(&CPU::_84);
+	mOpCodeCommands.push_back(&CPU::_85);
+	mOpCodeCommands.push_back(&CPU::_86);
+	mOpCodeCommands.push_back(&CPU::_87);
+	mOpCodeCommands.push_back(&CPU::_88);
+	mOpCodeCommands.push_back(&CPU::_89);
+	mOpCodeCommands.push_back(&CPU::_8A);
+	mOpCodeCommands.push_back(&CPU::_8B);
+	mOpCodeCommands.push_back(&CPU::_8C);
+	mOpCodeCommands.push_back(&CPU::_8D);
+	mOpCodeCommands.push_back(&CPU::_8E);
+	mOpCodeCommands.push_back(&CPU::_8F);
+
+	// Opcodes 0x9X
+	mOpCodeCommands.push_back(&CPU::_90);
+	mOpCodeCommands.push_back(&CPU::_91);
+	mOpCodeCommands.push_back(&CPU::_92);
+	mOpCodeCommands.push_back(&CPU::_93);
+	mOpCodeCommands.push_back(&CPU::_94);
+	mOpCodeCommands.push_back(&CPU::_95);
+	mOpCodeCommands.push_back(&CPU::_96);
+	mOpCodeCommands.push_back(&CPU::_97);
+	mOpCodeCommands.push_back(&CPU::_98);
+	mOpCodeCommands.push_back(&CPU::_99);
+	mOpCodeCommands.push_back(&CPU::_9A);
+	mOpCodeCommands.push_back(&CPU::_9B);
+	mOpCodeCommands.push_back(&CPU::_9C);
+	mOpCodeCommands.push_back(&CPU::_9D);
+	mOpCodeCommands.push_back(&CPU::_9E);
+	mOpCodeCommands.push_back(&CPU::_9F);
+
+	// Opcodes 0xAX
+	mOpCodeCommands.push_back(&CPU::_A0);
+	mOpCodeCommands.push_back(&CPU::_A1);
+	mOpCodeCommands.push_back(&CPU::_A2);
+	mOpCodeCommands.push_back(&CPU::_A3);
+	mOpCodeCommands.push_back(&CPU::_A4);
+	mOpCodeCommands.push_back(&CPU::_A5);
+	mOpCodeCommands.push_back(&CPU::_A6);
+	mOpCodeCommands.push_back(&CPU::_A7);
+	mOpCodeCommands.push_back(&CPU::_A8);
+	mOpCodeCommands.push_back(&CPU::_A9);
+	mOpCodeCommands.push_back(&CPU::_AA);
+	mOpCodeCommands.push_back(&CPU::_AB);
+	mOpCodeCommands.push_back(&CPU::_AC);
+	mOpCodeCommands.push_back(&CPU::_AD);
+	mOpCodeCommands.push_back(&CPU::_AE);
+	mOpCodeCommands.push_back(&CPU::_AF);
+
+	// Opcodes 0xBX
+	mOpCodeCommands.push_back(&CPU::_B0);
+	mOpCodeCommands.push_back(&CPU::_B1);
+	mOpCodeCommands.push_back(&CPU::_B2);
+	mOpCodeCommands.push_back(&CPU::_B3);
+	mOpCodeCommands.push_back(&CPU::_B4);
+	mOpCodeCommands.push_back(&CPU::_B5);
+	mOpCodeCommands.push_back(&CPU::_B6);
+	mOpCodeCommands.push_back(&CPU::_B7);
+	mOpCodeCommands.push_back(&CPU::_B8);
+	mOpCodeCommands.push_back(&CPU::_B9);
+	mOpCodeCommands.push_back(&CPU::_BA);
+	mOpCodeCommands.push_back(&CPU::_BB_); // again, don't ask.
+	mOpCodeCommands.push_back(&CPU::_BC);
+	mOpCodeCommands.push_back(&CPU::_BD);
+	mOpCodeCommands.push_back(&CPU::_BE);
+	mOpCodeCommands.push_back(&CPU::_BF);
+
+	// Opcodes 0xCX
+	mOpCodeCommands.push_back(&CPU::_C0);
+	mOpCodeCommands.push_back(&CPU::_C1);
+	mOpCodeCommands.push_back(&CPU::_C2_); // stop plz
+	mOpCodeCommands.push_back(&CPU::_C3);
+	mOpCodeCommands.push_back(&CPU::_C4);
+	mOpCodeCommands.push_back(&CPU::_C5);
+	mOpCodeCommands.push_back(&CPU::_C6);
+	mOpCodeCommands.push_back(&CPU::_C7);
+	mOpCodeCommands.push_back(&CPU::_C8);
+	mOpCodeCommands.push_back(&CPU::_C9);
+	mOpCodeCommands.push_back(&CPU::_CA);
+	mOpCodeCommands.push_back(&CPU::_CB);
+	mOpCodeCommands.push_back(&CPU::_CC);
+	mOpCodeCommands.push_back(&CPU::_CD);
+	mOpCodeCommands.push_back(&CPU::_CE);
+	mOpCodeCommands.push_back(&CPU::_CF);
+
+	// Opcodes 0xDX
+	mOpCodeCommands.push_back(&CPU::_D0);
+	mOpCodeCommands.push_back(&CPU::_D1);
+	mOpCodeCommands.push_back(&CPU::_D2);
+	mOpCodeCommands.push_back(&CPU::_D3);
+	mOpCodeCommands.push_back(&CPU::_D4);
+	mOpCodeCommands.push_back(&CPU::_D5);
+	mOpCodeCommands.push_back(&CPU::_D6);
+	mOpCodeCommands.push_back(&CPU::_D7);
+	mOpCodeCommands.push_back(&CPU::_D8);
+	mOpCodeCommands.push_back(&CPU::_D9);
+	mOpCodeCommands.push_back(&CPU::_DA);
+	mOpCodeCommands.push_back(&CPU::_DB);
+	mOpCodeCommands.push_back(&CPU::_DC);
+	mOpCodeCommands.push_back(&CPU::_DD);
+	mOpCodeCommands.push_back(&CPU::_DE);
+	mOpCodeCommands.push_back(&CPU::_DF);
+
+	// Opcodes 0xEX
+	mOpCodeCommands.push_back(&CPU::_E0);
+	mOpCodeCommands.push_back(&CPU::_E1);
+	mOpCodeCommands.push_back(&CPU::_E2);
+	mOpCodeCommands.push_back(&CPU::_E3);
+	mOpCodeCommands.push_back(&CPU::_E4);
+	mOpCodeCommands.push_back(&CPU::_E5);
+	mOpCodeCommands.push_back(&CPU::_E6);
+	mOpCodeCommands.push_back(&CPU::_E7);
+	mOpCodeCommands.push_back(&CPU::_E8);
+	mOpCodeCommands.push_back(&CPU::_E9);
+	mOpCodeCommands.push_back(&CPU::_EA);
+	mOpCodeCommands.push_back(&CPU::_EB);
+	mOpCodeCommands.push_back(&CPU::_EC);
+	mOpCodeCommands.push_back(&CPU::_ED);
+	mOpCodeCommands.push_back(&CPU::_EE);
+	mOpCodeCommands.push_back(&CPU::_EF);
+
+	// Opcodes 0x0X
+	mOpCodeCommands.push_back(&CPU::_F0);
+	mOpCodeCommands.push_back(&CPU::_F1);
+	mOpCodeCommands.push_back(&CPU::_F2);
+	mOpCodeCommands.push_back(&CPU::_F3);
+	mOpCodeCommands.push_back(&CPU::_F4);
+	mOpCodeCommands.push_back(&CPU::_F5);
+	mOpCodeCommands.push_back(&CPU::_F6);
+	mOpCodeCommands.push_back(&CPU::_F7);
+	mOpCodeCommands.push_back(&CPU::_F8);
+	mOpCodeCommands.push_back(&CPU::_F9);
+	mOpCodeCommands.push_back(&CPU::_FA);
+	mOpCodeCommands.push_back(&CPU::_FB);
+	mOpCodeCommands.push_back(&CPU::_FC);
+	mOpCodeCommands.push_back(&CPU::_FD);
+	mOpCodeCommands.push_back(&CPU::_FE);
+	mOpCodeCommands.push_back(&CPU::_FF);
+
+	// Opcodes 0xCB0X
+	mCBOpCodeCommands.push_back(&CPU::_CB00);
+	mCBOpCodeCommands.push_back(&CPU::_CB01);
+	mCBOpCodeCommands.push_back(&CPU::_CB02);
+	mCBOpCodeCommands.push_back(&CPU::_CB03);
+	mCBOpCodeCommands.push_back(&CPU::_CB04);
+	mCBOpCodeCommands.push_back(&CPU::_CB05);
+	mCBOpCodeCommands.push_back(&CPU::_CB06);
+	mCBOpCodeCommands.push_back(&CPU::_CB07);
+	mCBOpCodeCommands.push_back(&CPU::_CB08);
+	mCBOpCodeCommands.push_back(&CPU::_CB09);
+	mCBOpCodeCommands.push_back(&CPU::_CB0A);
+	mCBOpCodeCommands.push_back(&CPU::_CB0B);
+	mCBOpCodeCommands.push_back(&CPU::_CB0C);
+	mCBOpCodeCommands.push_back(&CPU::_CB0D);
+	mCBOpCodeCommands.push_back(&CPU::_CB0E);
+	mCBOpCodeCommands.push_back(&CPU::_CB0F);
+
+	// Opcodes 0xCB01X
+	mCBOpCodeCommands.push_back(&CPU::_CB10);
+	mCBOpCodeCommands.push_back(&CPU::_CB11);
+	mCBOpCodeCommands.push_back(&CPU::_CB12);
+	mCBOpCodeCommands.push_back(&CPU::_CB13);
+	mCBOpCodeCommands.push_back(&CPU::_CB14);
+	mCBOpCodeCommands.push_back(&CPU::_CB15);
+	mCBOpCodeCommands.push_back(&CPU::_CB16);
+	mCBOpCodeCommands.push_back(&CPU::_CB17);
+	mCBOpCodeCommands.push_back(&CPU::_CB18);
+	mCBOpCodeCommands.push_back(&CPU::_CB19);
+	mCBOpCodeCommands.push_back(&CPU::_CB1A);
+	mCBOpCodeCommands.push_back(&CPU::_CB1B);
+	mCBOpCodeCommands.push_back(&CPU::_CB1C);
+	mCBOpCodeCommands.push_back(&CPU::_CB1D);
+	mCBOpCodeCommands.push_back(&CPU::_CB1E);
+	mCBOpCodeCommands.push_back(&CPU::_CB1F);
+
+	// Opcodes 0xCB2X
+	mCBOpCodeCommands.push_back(&CPU::_CB20);
+	mCBOpCodeCommands.push_back(&CPU::_CB21);
+	mCBOpCodeCommands.push_back(&CPU::_CB22);
+	mCBOpCodeCommands.push_back(&CPU::_CB23);
+	mCBOpCodeCommands.push_back(&CPU::_CB24);
+	mCBOpCodeCommands.push_back(&CPU::_CB25);
+	mCBOpCodeCommands.push_back(&CPU::_CB26);
+	mCBOpCodeCommands.push_back(&CPU::_CB27);
+	mCBOpCodeCommands.push_back(&CPU::_CB28);
+	mCBOpCodeCommands.push_back(&CPU::_CB29);
+	mCBOpCodeCommands.push_back(&CPU::_CB2A);
+	mCBOpCodeCommands.push_back(&CPU::_CB2B);
+	mCBOpCodeCommands.push_back(&CPU::_CB2C);
+	mCBOpCodeCommands.push_back(&CPU::_CB2D);
+	mCBOpCodeCommands.push_back(&CPU::_CB2E);
+	mCBOpCodeCommands.push_back(&CPU::_CB2F);
+
+	// Opcodes 0xCB3X
+	mCBOpCodeCommands.push_back(&CPU::_CB30);
+	mCBOpCodeCommands.push_back(&CPU::_CB31);
+	mCBOpCodeCommands.push_back(&CPU::_CB32);
+	mCBOpCodeCommands.push_back(&CPU::_CB33);
+	mCBOpCodeCommands.push_back(&CPU::_CB34);
+	mCBOpCodeCommands.push_back(&CPU::_CB35);
+	mCBOpCodeCommands.push_back(&CPU::_CB36);
+	mCBOpCodeCommands.push_back(&CPU::_CB37);
+	mCBOpCodeCommands.push_back(&CPU::_CB38);
+	mCBOpCodeCommands.push_back(&CPU::_CB39);
+	mCBOpCodeCommands.push_back(&CPU::_CB3A);
+	mCBOpCodeCommands.push_back(&CPU::_CB3B);
+	mCBOpCodeCommands.push_back(&CPU::_CB3C);
+	mCBOpCodeCommands.push_back(&CPU::_CB3D);
+	mCBOpCodeCommands.push_back(&CPU::_CB3E);
+	mCBOpCodeCommands.push_back(&CPU::_CB3F);
+
+	// Opcodes 0xCB4X
+	mCBOpCodeCommands.push_back(&CPU::_CB40);
+	mCBOpCodeCommands.push_back(&CPU::_CB41);
+	mCBOpCodeCommands.push_back(&CPU::_CB42);
+	mCBOpCodeCommands.push_back(&CPU::_CB43);
+	mCBOpCodeCommands.push_back(&CPU::_CB44);
+	mCBOpCodeCommands.push_back(&CPU::_CB45);
+	mCBOpCodeCommands.push_back(&CPU::_CB46);
+	mCBOpCodeCommands.push_back(&CPU::_CB47);
+	mCBOpCodeCommands.push_back(&CPU::_CB48);
+	mCBOpCodeCommands.push_back(&CPU::_CB49);
+	mCBOpCodeCommands.push_back(&CPU::_CB4A);
+	mCBOpCodeCommands.push_back(&CPU::_CB4B);
+	mCBOpCodeCommands.push_back(&CPU::_CB4C);
+	mCBOpCodeCommands.push_back(&CPU::_CB4D);
+	mCBOpCodeCommands.push_back(&CPU::_CB4E);
+	mCBOpCodeCommands.push_back(&CPU::_CB4F);
+
+	// Opcodes 0xCB5X
+	mCBOpCodeCommands.push_back(&CPU::_CB50);
+	mCBOpCodeCommands.push_back(&CPU::_CB51);
+	mCBOpCodeCommands.push_back(&CPU::_CB52);
+	mCBOpCodeCommands.push_back(&CPU::_CB53);
+	mCBOpCodeCommands.push_back(&CPU::_CB54);
+	mCBOpCodeCommands.push_back(&CPU::_CB55);
+	mCBOpCodeCommands.push_back(&CPU::_CB56);
+	mCBOpCodeCommands.push_back(&CPU::_CB57);
+	mCBOpCodeCommands.push_back(&CPU::_CB58);
+	mCBOpCodeCommands.push_back(&CPU::_CB59);
+	mCBOpCodeCommands.push_back(&CPU::_CB5A);
+	mCBOpCodeCommands.push_back(&CPU::_CB5B);
+	mCBOpCodeCommands.push_back(&CPU::_CB5C);
+	mCBOpCodeCommands.push_back(&CPU::_CB5D);
+	mCBOpCodeCommands.push_back(&CPU::_CB5E);
+	mCBOpCodeCommands.push_back(&CPU::_CB5F);
+
+	// Opcodes 0xCB6X
+	mCBOpCodeCommands.push_back(&CPU::_CB60);
+	mCBOpCodeCommands.push_back(&CPU::_CB61);
+	mCBOpCodeCommands.push_back(&CPU::_CB62);
+	mCBOpCodeCommands.push_back(&CPU::_CB63);
+	mCBOpCodeCommands.push_back(&CPU::_CB64);
+	mCBOpCodeCommands.push_back(&CPU::_CB65);
+	mCBOpCodeCommands.push_back(&CPU::_CB66);
+	mCBOpCodeCommands.push_back(&CPU::_CB67);
+	mCBOpCodeCommands.push_back(&CPU::_CB68);
+	mCBOpCodeCommands.push_back(&CPU::_CB69);
+	mCBOpCodeCommands.push_back(&CPU::_CB6A);
+	mCBOpCodeCommands.push_back(&CPU::_CB6B);
+	mCBOpCodeCommands.push_back(&CPU::_CB6C);
+	mCBOpCodeCommands.push_back(&CPU::_CB6D);
+	mCBOpCodeCommands.push_back(&CPU::_CB6E);
+	mCBOpCodeCommands.push_back(&CPU::_CB6F);
+
+	// Opcodes 0xCB7X
+	mCBOpCodeCommands.push_back(&CPU::_CB70);
+	mCBOpCodeCommands.push_back(&CPU::_CB71);
+	mCBOpCodeCommands.push_back(&CPU::_CB72);
+	mCBOpCodeCommands.push_back(&CPU::_CB73);
+	mCBOpCodeCommands.push_back(&CPU::_CB74);
+	mCBOpCodeCommands.push_back(&CPU::_CB75);
+	mCBOpCodeCommands.push_back(&CPU::_CB76);
+	mCBOpCodeCommands.push_back(&CPU::_CB77);
+	mCBOpCodeCommands.push_back(&CPU::_CB78);
+	mCBOpCodeCommands.push_back(&CPU::_CB79);
+	mCBOpCodeCommands.push_back(&CPU::_CB7A);
+	mCBOpCodeCommands.push_back(&CPU::_CB7B);
+	mCBOpCodeCommands.push_back(&CPU::_CB7C);
+	mCBOpCodeCommands.push_back(&CPU::_CB7D);
+	mCBOpCodeCommands.push_back(&CPU::_CB7E);
+	mCBOpCodeCommands.push_back(&CPU::_CB7F);
+
+	// Opcodes 0xCB8X
+	mCBOpCodeCommands.push_back(&CPU::_CB90);
+	mCBOpCodeCommands.push_back(&CPU::_CB91);
+	mCBOpCodeCommands.push_back(&CPU::_CB92);
+	mCBOpCodeCommands.push_back(&CPU::_CB93);
+	mCBOpCodeCommands.push_back(&CPU::_CB94);
+	mCBOpCodeCommands.push_back(&CPU::_CB95);
+	mCBOpCodeCommands.push_back(&CPU::_CB96);
+	mCBOpCodeCommands.push_back(&CPU::_CB97);
+	mCBOpCodeCommands.push_back(&CPU::_CB98);
+	mCBOpCodeCommands.push_back(&CPU::_CB99);
+	mCBOpCodeCommands.push_back(&CPU::_CB9A);
+	mCBOpCodeCommands.push_back(&CPU::_CB9B);
+	mCBOpCodeCommands.push_back(&CPU::_CB9C);
+	mCBOpCodeCommands.push_back(&CPU::_CB9D);
+	mCBOpCodeCommands.push_back(&CPU::_CB9E);
+	mCBOpCodeCommands.push_back(&CPU::_CB9F);
+
+	// Opcodes 0xCBAX
+	mCBOpCodeCommands.push_back(&CPU::_CBA0);
+	mCBOpCodeCommands.push_back(&CPU::_CBA1);
+	mCBOpCodeCommands.push_back(&CPU::_CBA2);
+	mCBOpCodeCommands.push_back(&CPU::_CBA3);
+	mCBOpCodeCommands.push_back(&CPU::_CBA4);
+	mCBOpCodeCommands.push_back(&CPU::_CBA5);
+	mCBOpCodeCommands.push_back(&CPU::_CBA6);
+	mCBOpCodeCommands.push_back(&CPU::_CBA7);
+	mCBOpCodeCommands.push_back(&CPU::_CBA8);
+	mCBOpCodeCommands.push_back(&CPU::_CBA9);
+	mCBOpCodeCommands.push_back(&CPU::_CBAA);
+	mCBOpCodeCommands.push_back(&CPU::_CBAB);
+	mCBOpCodeCommands.push_back(&CPU::_CBAC);
+	mCBOpCodeCommands.push_back(&CPU::_CBAD);
+	mCBOpCodeCommands.push_back(&CPU::_CBAE);
+	mCBOpCodeCommands.push_back(&CPU::_CBAF);
+
+	// Opcodes 0xCBBX
+	mCBOpCodeCommands.push_back(&CPU::_CBB0);
+	mCBOpCodeCommands.push_back(&CPU::_CBB1);
+	mCBOpCodeCommands.push_back(&CPU::_CBB2);
+	mCBOpCodeCommands.push_back(&CPU::_CBB3);
+	mCBOpCodeCommands.push_back(&CPU::_CBB4);
+	mCBOpCodeCommands.push_back(&CPU::_CBB5);
+	mCBOpCodeCommands.push_back(&CPU::_CBB6);
+	mCBOpCodeCommands.push_back(&CPU::_CBB7);
+	mCBOpCodeCommands.push_back(&CPU::_CBB8);
+	mCBOpCodeCommands.push_back(&CPU::_CBB9);
+	mCBOpCodeCommands.push_back(&CPU::_CBBA);
+	mCBOpCodeCommands.push_back(&CPU::_CBBB);
+	mCBOpCodeCommands.push_back(&CPU::_CBBC);
+	mCBOpCodeCommands.push_back(&CPU::_CBBD);
+	mCBOpCodeCommands.push_back(&CPU::_CBBE);
+	mCBOpCodeCommands.push_back(&CPU::_CBBF);
+
+	// Opcodes 0xCBCX
+	mCBOpCodeCommands.push_back(&CPU::_CBC0);
+	mCBOpCodeCommands.push_back(&CPU::_CBC1);
+	mCBOpCodeCommands.push_back(&CPU::_CBC2);
+	mCBOpCodeCommands.push_back(&CPU::_CBC3);
+	mCBOpCodeCommands.push_back(&CPU::_CBC4);
+	mCBOpCodeCommands.push_back(&CPU::_CBC5);
+	mCBOpCodeCommands.push_back(&CPU::_CBC6);
+	mCBOpCodeCommands.push_back(&CPU::_CBC7);
+	mCBOpCodeCommands.push_back(&CPU::_CBC8);
+	mCBOpCodeCommands.push_back(&CPU::_CBC9);
+	mCBOpCodeCommands.push_back(&CPU::_CBCA);
+	mCBOpCodeCommands.push_back(&CPU::_CBCB);
+	mCBOpCodeCommands.push_back(&CPU::_CBCC);
+	mCBOpCodeCommands.push_back(&CPU::_CBCD);
+	mCBOpCodeCommands.push_back(&CPU::_CBCE);
+	mCBOpCodeCommands.push_back(&CPU::_CBCF);
+
+	// Opcodes 0xCBDX
+	mCBOpCodeCommands.push_back(&CPU::_CBD0);
+	mCBOpCodeCommands.push_back(&CPU::_CBD1);
+	mCBOpCodeCommands.push_back(&CPU::_CBD2);
+	mCBOpCodeCommands.push_back(&CPU::_CBD3);
+	mCBOpCodeCommands.push_back(&CPU::_CBD4);
+	mCBOpCodeCommands.push_back(&CPU::_CBD5);
+	mCBOpCodeCommands.push_back(&CPU::_CBD6);
+	mCBOpCodeCommands.push_back(&CPU::_CBD7);
+	mCBOpCodeCommands.push_back(&CPU::_CBD8);
+	mCBOpCodeCommands.push_back(&CPU::_CBD9);
+	mCBOpCodeCommands.push_back(&CPU::_CBDA);
+	mCBOpCodeCommands.push_back(&CPU::_CBDB);
+	mCBOpCodeCommands.push_back(&CPU::_CBDC);
+	mCBOpCodeCommands.push_back(&CPU::_CBDD);
+	mCBOpCodeCommands.push_back(&CPU::_CBDE);
+	mCBOpCodeCommands.push_back(&CPU::_CBDF);
+
+	// Opcodes 0xCBEX
+	mCBOpCodeCommands.push_back(&CPU::_CBE0);
+	mCBOpCodeCommands.push_back(&CPU::_CBE1);
+	mCBOpCodeCommands.push_back(&CPU::_CBE2);
+	mCBOpCodeCommands.push_back(&CPU::_CBE3);
+	mCBOpCodeCommands.push_back(&CPU::_CBE4);
+	mCBOpCodeCommands.push_back(&CPU::_CBE5);
+	mCBOpCodeCommands.push_back(&CPU::_CBE6);
+	mCBOpCodeCommands.push_back(&CPU::_CBE7);
+	mCBOpCodeCommands.push_back(&CPU::_CBE8);
+	mCBOpCodeCommands.push_back(&CPU::_CBE9);
+	mCBOpCodeCommands.push_back(&CPU::_CBEA);
+	mCBOpCodeCommands.push_back(&CPU::_CBEB);
+	mCBOpCodeCommands.push_back(&CPU::_CBEC);
+	mCBOpCodeCommands.push_back(&CPU::_CBED);
+	mCBOpCodeCommands.push_back(&CPU::_CBEE);
+	mCBOpCodeCommands.push_back(&CPU::_CBEF);
+
+	// Opcodes 0xCBFX
+	mCBOpCodeCommands.push_back(&CPU::_CBF0);
+	mCBOpCodeCommands.push_back(&CPU::_CBF1);
+	mCBOpCodeCommands.push_back(&CPU::_CBF2);
+	mCBOpCodeCommands.push_back(&CPU::_CBF3);
+	mCBOpCodeCommands.push_back(&CPU::_CBF4);
+	mCBOpCodeCommands.push_back(&CPU::_CBF5);
+	mCBOpCodeCommands.push_back(&CPU::_CBF6);
+	mCBOpCodeCommands.push_back(&CPU::_CBF7);
+	mCBOpCodeCommands.push_back(&CPU::_CBF8);
+	mCBOpCodeCommands.push_back(&CPU::_CBF9);
+	mCBOpCodeCommands.push_back(&CPU::_CBFA);
+	mCBOpCodeCommands.push_back(&CPU::_CBFB);
+	mCBOpCodeCommands.push_back(&CPU::_CBFC);
+	mCBOpCodeCommands.push_back(&CPU::_CBFD);
+	mCBOpCodeCommands.push_back(&CPU::_CBFE);
+	mCBOpCodeCommands.push_back(&CPU::_CBFF);
 }

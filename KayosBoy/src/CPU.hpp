@@ -2,6 +2,7 @@
 #define _CPU_H_
 
 #include "memory.hpp"
+#include <vector>
 
 enum Condition : uint8_t
 {
@@ -16,7 +17,14 @@ class CPU
 public:
 	CPU(Memory& mem);
 
+	uint64_t Tick();
+
 protected:
+	typedef void(CPU::*OpCodeFunction)();
+
+	std::vector<OpCodeFunction> mOpCodeCommands;
+	std::vector<OpCodeFunction> mCBOpCodeCommands;
+
 	bool mIsInterruptsEnabled;
 
 	Memory& mMemory;
@@ -46,11 +54,11 @@ protected:
 
 	uint64_t mTickElapsedCycles;
 
-	uint64_t Tick();
-
 	uint8_t ReadByteFromProgramCounter();
 	uint16_t ReadTwoBytesFromProgramCounter();
 	KayosBoyPtr ReadAddressFromProgramCounter();
+
+	void SetupCommandStructure();
 
 	bool IsCPUInCondition(Condition condition);
 
@@ -478,7 +486,7 @@ protected:
 	void _B8();
 	void _B9();
 	void _BA();
-	void _BB();
+	void _BB_(); // dont know dont ask.
 	void _BC();
 	void _BD();
 	void _BE();
@@ -487,7 +495,7 @@ protected:
 	// OPCODES CX
 	void _C0();
 	void _C1();
-	void _C2();
+	void _C2_(); // dont know dont ask.
 	void _C3();
 	void _C4();
 	void _C5();

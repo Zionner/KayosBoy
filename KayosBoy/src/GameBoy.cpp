@@ -4,7 +4,8 @@
 GameBoy::GameBoy(CPU& gameboyCPU, Memory& gameboyMemory, char* const pathToBootRom, char* const pathToCartridgeRom, char* const pathToCartridgeRam) :
 	mCycleCount(0),
 	mCPU(gameboyCPU),
-	mMemory(gameboyMemory)
+	mMemory(gameboyMemory),
+	mKeepRunning(true)
 {
 	LoadBootROM(pathToBootRom);
 	LoadCartridgeFromFile(pathToCartridgeRom, pathToCartridgeRam);
@@ -42,4 +43,10 @@ bool GameBoy::LoadCartridgeFromFile(char* const romPath, char* ramPath)
 	delete[] rawCartridgeRam;
 
 	return true;
+}
+
+void GameBoy::Tick()
+{
+	while(mKeepRunning)
+	mCycleCount += mCPU.Tick();
 }

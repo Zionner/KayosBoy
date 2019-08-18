@@ -14,6 +14,10 @@ class GameBoy
 		bool LoadBootROM(char* path);
 		bool LoadCartridgeFromFile(char* romPath, char* ramPath);
 
+		void Tick();
+
+		bool mKeepRunning;
+
 		const uint32_t mClockCycles = 4194304;
 		const uint32_t mMachineCycle = 1048576;
 
