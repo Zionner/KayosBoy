@@ -49,10 +49,10 @@ uint8_t Memory::ReadByteAtPointer(KayosBoyPtr ptr)
 		{
 			return mBootRom[addr];
 		}
-		else
+		/*else
 		{
 			return 0xFF;
-		}
+		}*/
 	}
 
 	if	(addr <= 0x7FFF || (addr >= 0xA000 && addr <= 0xBFFF))

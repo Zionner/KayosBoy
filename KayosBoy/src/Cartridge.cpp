@@ -92,8 +92,8 @@ bool Cartridge::LoadCartridgeFromFile(char* const romPath, char* ramPath)
 
 	InitCartridge(rawCartridgeRom, romRet, rawCartridgeRam, ramRet);
 
-	delete[] rawCartridgeRom;
-	delete[] rawCartridgeRam;
+	//delete[] rawCartridgeRom;
+	//delete[] rawCartridgeRam;
 
 	return true;
 }

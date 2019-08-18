@@ -108,7 +108,7 @@ uint64_t CPU::Tick()
 	mTickElapsedCycles = 0;
 
 	uint8_t opcode = ReadByteFromProgramCounter();
-	(this->*mOpCodeCommands[opcode])();
+ 	(this->*mOpCodeCommands[opcode])();
 
 	return mTickElapsedCycles;
 }
@@ -537,22 +537,24 @@ void CPU::LDD(KayosBoyPtr& ptrToSet, ByteRegister& val)
 // LDH
 void CPU::LDH_A()
 {
-	printf("LDH_A Unimplemented \n");
+	int8_t val = static_cast<int8_t>(ReadByteFromProgramCounter());
+	mRegisterA.SetRegister(mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF00 + val)));
 }
 
 void CPU::LDH_PC()
 {
-	printf("LDH_PC Unimplemented \n");
+	int8_t val = static_cast<int8_t>(ReadByteFromProgramCounter());
+	mMemory.WriteByteAtPointer(mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF00 + val)), mRegisterA.GetRegisterValue().ByteMemory);
 }
 
 void CPU::LDH_C()
 {
-	printf("LDH_C Unimplemented \n");
+	mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF00 + mRegisterC.GetRegisterValue().ByteMemory), mRegisterA.GetRegisterValue().ByteMemory);
 }
 
 void CPU::LDH_CAddr_A()
 {
-	printf("LDH_CAddr_A Unimplemented \n");
+	mRegisterA.SetRegister(mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF00 + mRegisterC.GetRegisterValue().ByteMemory)));
 }
 
 // LDHL
@@ -832,43 +834,58 @@ void CPU::STOP()
 // SUB
 void CPU::SUB()
 {
-	printf("SUB not implemented \n");
+	SUB(ReadByteFromProgramCounter());
 }
 
 void CPU::SUB(uint8_t val)
 {
-	printf("SUB not implemented \n");
+	uint8_t aVal = mRegisterA.GetRegisterValue().ByteMemory;
+	uint8_t result = aVal - val;
+
+	mRegisterA.SetRegister(result);
+
+	mRegisterF.SetZeroFlag(result == 0);
+	mRegisterF.SetSubtractFlag(true);
+	mRegisterF.SetHalfCarryFlag(((aVal & 0xF) - (val & 0xF)) < 0);
+	mRegisterF.SetCarryFlag(aVal < val);
 }
 
 void CPU::SUB(ByteRegister& val)
 {
-	printf("SUB not implemented \n");
+	SUB(val.GetRegisterValue().ByteMemory);
 }
 
 void CPU::SUB(KayosBoyPtr& ptrToVal)
 {
-	printf("SUB not implemented \n");
+	SUB(mMemory.ReadByteAtPointer(ptrToVal));
 }
 
 // XOR
 void CPU::XOR()
 {
-	printf("SUB not implemented \n");
+	XOR(ReadByteFromProgramCounter());
 }
 
 void CPU::XOR(uint8_t val)
 {
-	printf("SUB not implemented \n");
+	uint8_t result = mRegisterA.GetRegisterValue().ByteMemory ^ val;
+
+	mRegisterA.SetRegister(result);
+
+	mRegisterF.SetZeroFlag(result == 0);
+	mRegisterF.SetSubtractFlag(false);
+	mRegisterF.SetHalfCarryFlag(false);
+	mRegisterF.SetCarryFlag(false);
 }
 
 void CPU::XOR(ByteRegister& val)
 {
-	printf("SUB not implemented \n");
+	XOR(val.GetRegisterValue().ByteMemory);
 }
 
 void CPU::XOR(KayosBoyPtr& ptrToVal)
 {
-	printf("SUB not implemented \n");
+	XOR(mMemory.ReadByteAtPointer(ptrToVal));
 }
 
 // OPCODES 0X
@@ -2025,7 +2042,7 @@ void CPU::_DF()
 // OPCODES EX
 void CPU::_E0()
 {
-	printf("_E0 Unimplemented");
+	LDH_PC();
 }
 
 void CPU::_E1()
@@ -2035,7 +2052,7 @@ void CPU::_E1()
 
 void CPU::_E2()
 {
-	printf("_E2 Unimplemented");
+	LDH_CAddr_A();
 }
 
 void CPU::_E3()
@@ -2075,7 +2092,7 @@ void CPU::_E9()
 
 void CPU::_EA()
 {
-	printf("_EA Unimplemented");
+	LD_WriteToPCAddress(mRegisterA);
 }
 
 void CPU::_EB()

@@ -13,8 +13,10 @@ NoMBC::NoMBC(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize)
 	if (romSize > bankSize)
 	{
 		size_t remainingData = romSize - bankSize;
-		mStaticRomData = std::vector<uint8_t>(romData, romData + bankSize); // Place first 16 KB of ROM into the static bank.
-		mRomBankData = new std::vector<uint8_t>(romData + bankSize, romData + bankSize + remainingData); // Place the rest into the second bank.
+		mStaticRomData = std::vector<uint8_t>(bankSize);
+		std::copy(romData, romData + bankSize, std::back_inserter(mStaticRomData)); // Place first 16 KB of ROM into the static bank.
+		mRomBankData = new std::vector<uint8_t>(remainingData); // Place the rest into the second bank.
+		std::copy(romData + bankSize, romData + bankSize + remainingData, std::back_inserter(*mRomBankData));
 	}
 	else
 	{
@@ -37,7 +39,7 @@ void NoMBC::writeTwoBytes(KayosBoyPtr& address, uint16_t val)
 uint8_t NoMBC::read(KayosBoyPtr& address)
 {
 	uint16_t addr = address.GetPointerVal();
-	return ((addr > 0x4000) ? mStaticRomData[addr] :
+	return ((addr < 0x4000) ? mStaticRomData[addr] :
 							  (*mRomBankData)[addr - 0x4000]);
 }
 
@@ -45,10 +47,10 @@ uint16_t NoMBC::readTwoBytes(KayosBoyPtr& address)
 {
 	uint16_t addr = address.GetPointerVal();
 	uint16_t nextAddr = addr + 1;
-	uint8_t firstByte = ((addr > 0x4000) ? mStaticRomData[addr] :
+	uint8_t firstByte = ((addr < 0x4000) ? mStaticRomData[addr] :
 										   (*mRomBankData)[addr - 0x4000]);
 
-	uint8_t secondByte = ((nextAddr > 0x4000) ? mStaticRomData[nextAddr] :
+	uint8_t secondByte = ((nextAddr < 0x4000) ? mStaticRomData[nextAddr] :
 												(*mRomBankData)[nextAddr - 0x4000]);
 
 	return static_cast<uint16_t>((firstByte << 8) | secondByte);
