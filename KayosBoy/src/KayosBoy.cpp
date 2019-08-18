@@ -22,10 +22,10 @@ int main(int argc, char* argv[])
 	}
 
 	Cartridge cart(argv[index + 1], ((argc == (2 + index)) ? nullptr : argv[index + 2]));
-	Memory memory(cart);
+	Memory memory(argv[index], cart);
 	CPU gameboyCpu(memory);
 
-	GameBoy cpuTest(argv[index], gameboyCpu, memory, cart);
+	GameBoy cpuTest(gameboyCpu, memory, cart);
 	
 	cpuTest.Run();
 
