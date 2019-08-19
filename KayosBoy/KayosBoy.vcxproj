@@ -27,6 +27,7 @@
     <ClCompile Include="src\MBC.cpp" />
     <ClCompile Include="src\memory.cpp" />
     <ClCompile Include="src\registers.cpp" />
+    <ClCompile Include="src\timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Cartridge.hpp" />
@@ -36,6 +37,7 @@
     <ClInclude Include="src\MBC.hpp" />
     <ClInclude Include="src\memory.hpp" />
     <ClInclude Include="src\registers.hpp" />
+    <ClInclude Include="src\timer.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

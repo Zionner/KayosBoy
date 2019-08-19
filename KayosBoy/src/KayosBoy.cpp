@@ -24,9 +24,10 @@ int main(int argc, char* argv[])
 	Cartridge cart(argv[index + 1], ((argc == (2 + index)) ? nullptr : argv[index + 2]));
 
 	Memory memory(argv[index], cart);
+	Timer timer(memory);
 	CPU gameboyCpu(memory);
 
-	GameBoy cpuTest(gameboyCpu, memory, cart);
+	GameBoy cpuTest(gameboyCpu, memory, cart, timer);
 	
 	cpuTest.Run();
 

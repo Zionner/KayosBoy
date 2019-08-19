@@ -256,6 +256,7 @@ void CPU::BIT(uint8_t bit, ByteRegister& registerToTest)
 	mRegisterF.SetZeroFlag(registerToTest.GetRegisterBit(bit) == 0);
 	mRegisterF.SetSubtractFlag(false);
 	mRegisterF.SetHalfCarryFlag(true);
+	mTickElapsedCycles += 2;
 }
 
 void CPU::BIT(uint8_t bit, KayosBoyPtr& addressToByteToTest)
@@ -263,6 +264,7 @@ void CPU::BIT(uint8_t bit, KayosBoyPtr& addressToByteToTest)
 	mRegisterF.SetZeroFlag((mMemory.ReadByteAtPointer(addressToByteToTest) & (1 << bit)) == 0);
 	mRegisterF.SetSubtractFlag(false);
 	mRegisterF.SetHalfCarryFlag(true);
+	mTickElapsedCycles += 3;
 }
 
 // CALL
@@ -271,6 +273,7 @@ void CPU::CALL()
 	uint16_t addr = ReadTwoBytesFromProgramCounter();
 	PushOntoStackPointer(addr);
 	mProgramCounter.SetRegister(addr);
+	mTickElapsedCycles += 24;
 }
 
 void CPU::CALL(Condition flagCondition)
@@ -282,6 +285,7 @@ void CPU::CALL(Condition flagCondition)
 	else
 	{
 		ReadTwoBytesFromProgramCounter();
+		mTickElapsedCycles += 12;
 	}
 }
 
@@ -291,12 +295,14 @@ void CPU::CCF()
 	mRegisterF.SetSubtractFlag(false);
 	mRegisterF.SetHalfCarryFlag(false);
 	mRegisterF.SetCarryFlag(!mRegisterF.GetCarryFlag());
+	mTickElapsedCycles += 1;
 }
 
 // CP
 void CPU::CP()
 {
 	CP(ReadByteFromProgramCounter());
+	mTickElapsedCycles += 1;
 }
 
 void CPU::CP(uint8_t val)
@@ -310,6 +316,7 @@ void CPU::CP(uint8_t val)
 	mRegisterF.SetSubtractFlag(true);
 	mRegisterF.SetHalfCarryFlag(((aVal & 0xF) - (result & 0xF)) < 0);
 	mRegisterF.SetCarryFlag(aVal < result);
+	mTickElapsedCycles += 1;
 }
 
 void CPU::CP(ByteRegister& val)
@@ -320,18 +327,21 @@ void CPU::CP(ByteRegister& val)
 void CPU::CP(KayosBoyPtr& ptrToVal)
 {
 	CP(mMemory.ReadByteAtPointer(ptrToVal));
+	mTickElapsedCycles += 1;
 }
 
 // CPL
 void CPU::CPL()
 {
 	mRegisterA.SetRegister(~mRegisterA.GetRegisterValue().ByteMemory);
+	mTickElapsedCycles += 1;
 }
 
 // DAA
 void CPU::DAA()
 {
 	printf("DAA Unimplemented \n");
+	mTickElapsedCycles += 1;
 }
 
 // DEC
@@ -342,16 +352,19 @@ void CPU::DEC(ByteRegister& val)
 	mRegisterF.SetZeroFlag(val.GetRegisterValue().ByteMemory == 0);
 	mRegisterF.SetSubtractFlag(true);
 	mRegisterF.SetHalfCarryFlag((val.GetRegisterValue().ByteMemory & 0x0F) == 0x0F);
+	mTickElapsedCycles += 1;
 }
 
 void CPU::DEC(TwoByteRegister& val)
 {
 	val.Decrement();
+	mTickElapsedCycles += 2;
 }
 
 void CPU::DEC(PairedByteRegister& val)
 {
 	val.Decrement();
+	mTickElapsedCycles += 2;
 }
 
 void CPU::DEC(KayosBoyPtr& ptrToVal)
@@ -363,24 +376,28 @@ void CPU::DEC(KayosBoyPtr& ptrToVal)
 	mRegisterF.SetZeroFlag(val == 0);
 	mRegisterF.SetSubtractFlag(true);
 	mRegisterF.SetHalfCarryFlag((val & 0x0F) == 0x0F);
+	mTickElapsedCycles += 3;
 }
 
 // DI
 void CPU::DI()
 {
 	mIsInterruptsEnabled = false;
+	mTickElapsedCycles += 1;
 }
 
 // EI
 void CPU::EI()
 {
 	mIsInterruptsEnabled = true;
+	mTickElapsedCycles += 1;
 }
 
 // HALT
 void CPU::HALT()
 {
 	printf("HALT Unimplemented \n");
+	mTickElapsedCycles += 1;
 	// TODO
 }
 
@@ -392,16 +409,19 @@ void CPU::INC(ByteRegister& val)
 	mRegisterF.SetZeroFlag(val.GetRegisterValue().ByteMemory == 0);
 	mRegisterF.SetSubtractFlag(true);
 	mRegisterF.SetHalfCarryFlag((val.GetRegisterValue().ByteMemory & 0x0F) == 0x0F);
+	mTickElapsedCycles += 1;
 }
 
 void CPU::INC(TwoByteRegister& val)
 {
 	val.Increment();
+	mTickElapsedCycles += 2;
 }
 
 void CPU::INC(PairedByteRegister& val)
 {
 	val.Increment();
+	mTickElapsedCycles += 2;
 }
 
 void CPU::INC(KayosBoyPtr& ptrToVal)
@@ -413,6 +433,7 @@ void CPU::INC(KayosBoyPtr& ptrToVal)
 	mRegisterF.SetZeroFlag(val == 0);
 	mRegisterF.SetSubtractFlag(true);
 	mRegisterF.SetHalfCarryFlag((val & 0x0F) == 0x0F);
+	mTickElapsedCycles += 3;
 }
 
 // JP
@@ -420,6 +441,7 @@ void CPU::JP()
 {
 	uint16_t addr = ReadTwoBytesFromProgramCounter();
 	mProgramCounter.SetRegister(addr);
+	mTickElapsedCycles += 4;
 }
 
 void CPU::JP(Condition flagCondition)
@@ -431,12 +453,14 @@ void CPU::JP(Condition flagCondition)
 	else
 	{
 		ReadTwoBytesFromProgramCounter();
+		mTickElapsedCycles += 3;
 	}
 }
 
 void CPU::JP(KayosBoyPtr& ptr)
 {
 	mProgramCounter.SetRegister(ptr.GetPointerVal());
+	mTickElapsedCycles += 1;
 }
 
 // JR
@@ -446,6 +470,7 @@ void CPU::JR()
 	uint16_t result = mProgramCounter.GetRegisterValue().PairedBytes + offset;
 
 	mProgramCounter.SetRegister(result);
+	mTickElapsedCycles += 3;
 }
 
 void CPU::JR(Condition flagCondition)
@@ -457,6 +482,7 @@ void CPU::JR(Condition flagCondition)
 	else
 	{
 		ReadByteFromProgramCounter();
+		mTickElapsedCycles += 2;
 	}
 }
 
@@ -464,61 +490,73 @@ void CPU::JR(Condition flagCondition)
 void CPU::LD_PC(ByteRegister& registerToSet)
 {
 	registerToSet.SetRegister(ReadByteFromProgramCounter());
+	mTickElapsedCycles += 2;
 }
 
 void CPU::LD_PC(KayosBoyPtr& ptrToSet)
 {
 	mMemory.WriteByteAtPointer(ptrToSet, ReadByteFromProgramCounter());
+	mTickElapsedCycles += 2;
 }
 
 void CPU::LD_PC(PairedByteRegister& val)
 {
 	val.SetRegister(ReadTwoBytesFromProgramCounter());
+	mTickElapsedCycles += 2;
 }
 
 void CPU::LD_PC(TwoByteRegister& registerToSet)
 {
 	registerToSet.SetRegister(ReadTwoBytesFromProgramCounter());
+	mTickElapsedCycles += 2;
 }
 
 void CPU::LD_PCAddress(ByteRegister& registerToSet)
 {
 	registerToSet.SetRegister(mMemory.ReadByteAtPointer(ReadAddressFromProgramCounter()));
+	mTickElapsedCycles += 3;
 }
 
 void CPU::LD_WriteToPCAddress(ByteRegister& registerToSet)
 {
 	mMemory.WriteByteAtPointer(ReadAddressFromProgramCounter(), registerToSet.GetRegisterValue().ByteMemory);
+	mTickElapsedCycles += 3;
 }
 
 void CPU::LD_WriteToPCAddress(TwoByteRegister& registerToSet)
 {
 	mMemory.WriteTwoBytesAtPointer(ReadAddressFromProgramCounter(), registerToSet.GetRegisterValue().PairedBytes);
+	mTickElapsedCycles += 3;
 }
 
 void CPU::LD(ByteRegister& registerToSet, ByteRegister& val)
 {
 	registerToSet.SetRegister(val.GetRegisterValue().ByteMemory);
+	mTickElapsedCycles += 1;
 }
 
 void CPU::LD(ByteRegister& registerToSet, KayosBoyPtr& val)
 {
 	registerToSet.SetRegister(mMemory.ReadByteAtPointer(val));
+	mTickElapsedCycles += 2;
 }
 
 void CPU::LD(TwoByteRegister& registerToSet, PairedByteRegister& val)
 {
 	registerToSet.SetRegister(val.GetRegisterValue().PairedBytes);
+	mTickElapsedCycles += 3;
 }
 
 void CPU::LD(KayosBoyPtr& ptrToSet, ByteRegister& val)
 {
 	mMemory.WriteByteAtPointer(ptrToSet, val.GetRegisterValue().ByteMemory);
+	mTickElapsedCycles += 2;
 }
 
 void CPU::LD(KayosBoyPtr& ptrToSet, TwoByteRegister& val)
 {
 	mMemory.WriteTwoBytesAtPointer(ptrToSet, val.GetRegisterValue().PairedBytes);
+	mTickElapsedCycles += 5;
 }
 
 // LDD
@@ -526,12 +564,14 @@ void CPU::LDD(ByteRegister& registerToSet, KayosBoyPtr& val)
 {
 	registerToSet.SetRegister(mMemory.ReadByteAtPointer(val));
 	mRegisterHL.Decrement();
+	mTickElapsedCycles += 2;
 }
 
 void CPU::LDD(KayosBoyPtr& ptrToSet, ByteRegister& val)
 {
 	mMemory.WriteByteAtPointer(ptrToSet, val.GetRegisterValue().ByteMemory);
 	mRegisterHL.Decrement();
+	mTickElapsedCycles += 2;
 }
 
 // LDH
@@ -539,22 +579,26 @@ void CPU::LDH_A()
 {
 	int8_t val = static_cast<int8_t>(ReadByteFromProgramCounter());
 	mRegisterA.SetRegister(mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF00 + val)));
+	mTickElapsedCycles += 3;
 }
 
 void CPU::LDH_PC()
 {
 	int8_t val = static_cast<int8_t>(ReadByteFromProgramCounter());
 	mMemory.WriteByteAtPointer(mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF00 + val)), mRegisterA.GetRegisterValue().ByteMemory);
+	mTickElapsedCycles += 3;
 }
 
 void CPU::LDH_C()
 {
 	mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF00 + mRegisterC.GetRegisterValue().ByteMemory), mRegisterA.GetRegisterValue().ByteMemory);
+	mTickElapsedCycles += 2;
 }
 
 void CPU::LDH_CAddr_A()
 {
 	mRegisterA.SetRegister(mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF00 + mRegisterC.GetRegisterValue().ByteMemory)));
+	mTickElapsedCycles += 2;
 }
 
 // LDHL
@@ -569,6 +613,7 @@ void CPU::LDHL()
 	mRegisterF.SetSubtractFlag(false);
 	mRegisterF.SetHalfCarryFlag(((mStackPointer.GetRegisterValue().PairedBytes ^ offset ^ (result & 0xFFFF)) & 0x10) == 0x10);
 	mRegisterF.SetCarryFlag(((mStackPointer.GetRegisterValue().PairedBytes ^ offset ^ (result & 0xFFFF)) & 0x100) == 0x100);
+	mTickElapsedCycles += 3;
 }
 
 // LDI
@@ -576,24 +621,28 @@ void CPU::LDI(ByteRegister& registerToSet, KayosBoyPtr& val)
 {
 	registerToSet.SetRegister(mMemory.ReadByteAtPointer(val));
 	mRegisterHL.Increment();
+	mTickElapsedCycles += 2;
 }
 
 void CPU::LDI(KayosBoyPtr& addressToSet, ByteRegister& val)
 {
 	mMemory.WriteByteAtPointer(addressToSet, val.GetRegisterValue().ByteMemory);
 	mRegisterHL.Increment();
+	mTickElapsedCycles += 2;
 }
 
 // NOP
 void CPU::NOP()
 {
 	// Blank..?
+	mTickElapsedCycles += 1;
 }
 
 // OR
 void CPU::OR()
 {
 	OR(ReadByteFromProgramCounter());
+	mTickElapsedCycles += 2;
 }
 
 void CPU::OR(uint8_t val)
@@ -613,29 +662,34 @@ void CPU::OR(uint8_t val)
 void CPU::OR(ByteRegister& val)
 {
 	OR(val.GetRegisterValue().ByteMemory);
+	mTickElapsedCycles += 1;
 }
 
 void CPU::OR(KayosBoyPtr& ptrToVal)
 {
 	OR(mMemory.ReadByteAtPointer(ptrToVal));
+	mTickElapsedCycles += 2;
 }
 
 // POP
 void CPU::POP(PairedByteRegister& val)
 {
 	PopFromStackPointer(val);
+	mTickElapsedCycles += 3;
 }
 
 // PUSH
 void CPU::PUSH(PairedByteRegister& val)
 {
 	PushOntoStackPointer(val);
+	mTickElapsedCycles += 4;
 }
 
 // RES
 void CPU::RES(uint8_t bit, ByteRegister& registerToReset)
 {
 	registerToReset.SetRegisterBit(bit, false);
+	mTickElapsedCycles += 2;
 }
 
 void CPU::RES(uint8_t bit, KayosBoyPtr& addressToByteToReset)
@@ -643,6 +697,7 @@ void CPU::RES(uint8_t bit, KayosBoyPtr& addressToByteToReset)
 	uint8_t value = mMemory.ReadByteAtPointer(addressToByteToReset);
 	value |= 0 << bit;
 	mMemory.WriteByteAtPointer(addressToByteToReset, value);
+	mTickElapsedCycles += 4;
 }
 
 // RET
@@ -656,6 +711,11 @@ void CPU::RET(Condition flagCondition)
 	if (IsCPUInCondition(flagCondition))
 	{
 		RET();
+		mTickElapsedCycles += 5;
+	}
+	else
+	{
+		mTickElapsedCycles += 2;
 	}
 }
 
@@ -664,74 +724,87 @@ void CPU::RETI()
 {
 	RET();
 	EI();
+	mTickElapsedCycles += 4;
 }
 
 // RLA
 void CPU::RLA()
 {
 	printf("RLA not implemented \n");
+	mTickElapsedCycles += 1;
 }
 
 // RLCA
 void CPU::RLCA()
 {
 	printf("RLCA not implemented \n");
+	mTickElapsedCycles += 1;
 }
 
 // RLC
 void CPU::RLC(ByteRegister& registerToRotate)
 {
 	printf("RLC not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 void CPU::RLC(KayosBoyPtr& addressToByteToRotate)
 {
 	printf("RLC not implemented \n");
+	mTickElapsedCycles += 4;
 }
 
 // RL
 void CPU::RL(ByteRegister& registerToRotate)
 {
 	printf("RL not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 void CPU::RL(KayosBoyPtr& addressToByteToRotate)
 {
 	printf("RL not implemented \n");
+	mTickElapsedCycles += 4;
 }
 
 // RRA
 void CPU::RRA()
 {
 	printf("RRA not implemented \n");
+	mTickElapsedCycles += 1;
 }
 
 // RRCA
 void CPU::RRCA()
 {
 	printf("RRCA not implemented \n");
+	mTickElapsedCycles += 1;
 }
 
 // RRC
 void CPU::RRC(ByteRegister& registerToRotate)
 {
 	printf("RRC not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 void CPU::RRC(KayosBoyPtr& addressToByteToRotate)
 {
 	printf("RRC not implemented \n");
+	mTickElapsedCycles += 4;
 }
 
 // RR
 void CPU::RR(ByteRegister& registerToRotate)
 {
 	printf("RR not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 void CPU::RR(KayosBoyPtr& addressToByteToRotate)
 {
 	printf("RR not implemented \n");
+	mTickElapsedCycles += 4;
 }
 
 // RST
@@ -739,12 +812,14 @@ void CPU::RST(uint8_t offset)
 {
 	PushOntoStackPointer(mProgramCounter.GetRegisterValue().PairedBytes);
 	mProgramCounter.SetRegister(offset);
+	mTickElapsedCycles += 4;
 }
 
 // SBC
 void CPU::SBC()
 {
 	printf("SBC not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 void CPU::SBC(uint8_t val)
@@ -755,23 +830,27 @@ void CPU::SBC(uint8_t val)
 void CPU::SBC(ByteRegister& val)
 {
 	printf("SBC not implemented \n");
+	mTickElapsedCycles += 1;
 }
 
 void CPU::SBC(KayosBoyPtr& ptrToVal)
 {
 	printf("SBC not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 // SCF
 void CPU::SCF()
 {
 	printf("SCF not implemented \n");
+	mTickElapsedCycles += 1;
 }
 
 // SET
 void CPU::SET(uint8_t bit, ByteRegister& registerToSet)
 {
 	registerToSet.SetRegisterBit(bit, true);
+	mTickElapsedCycles += 2;
 }
 
 void CPU::SET(uint8_t bit, KayosBoyPtr& addressToByteToSet)
@@ -779,62 +858,73 @@ void CPU::SET(uint8_t bit, KayosBoyPtr& addressToByteToSet)
 	uint8_t value = mMemory.ReadByteAtPointer(addressToByteToSet);
 	value |= (1 << bit);
 	mMemory.WriteByteAtPointer(addressToByteToSet, value);
+	mTickElapsedCycles += 4;
 }
 
 // SLA
 void CPU::SLA(ByteRegister& registerToShift)
 {
 	printf("SLA not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 void CPU::SLA(KayosBoyPtr& addressToByteToShift)
 {
 	printf("SLA not implemented \n");
+	mTickElapsedCycles += 4;
 }
 
 // SRA
 void CPU::SRA(ByteRegister& registerToShift)
 {
 	printf("SRA not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 void CPU::SRA(KayosBoyPtr& addressToByteToShift)
 {
 	printf("SRA not implemented \n");
+	mTickElapsedCycles += 4;
 }
 
 // SRL
 void CPU::SRL(ByteRegister& registerToShift)
 {
 	printf("SRL not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 void CPU::SRL(KayosBoyPtr& addressToByteToShift)
 {
 	printf("SRL not implemented \n");
+	mTickElapsedCycles += 4;
 }
 
 // SWAP
 void CPU::SWAP(ByteRegister& registerToSwap)
 {
 	printf("SWAP not implemented \n");
+	mTickElapsedCycles += 2;
 }
 
 void CPU::SWAP(KayosBoyPtr& addressToByteToSwap)
 {
 	printf("SWAP not implemented \n");
+	mTickElapsedCycles += 4;
 }
 
 // STOP
 void CPU::STOP()
 {
 	// Emptry
+	mTickElapsedCycles += 1;
 }
 
 // SUB
 void CPU::SUB()
 {
 	SUB(ReadByteFromProgramCounter());
+	mTickElapsedCycles += 2;
 }
 
 void CPU::SUB(uint8_t val)
@@ -853,17 +943,20 @@ void CPU::SUB(uint8_t val)
 void CPU::SUB(ByteRegister& val)
 {
 	SUB(val.GetRegisterValue().ByteMemory);
+	mTickElapsedCycles += 1;
 }
 
 void CPU::SUB(KayosBoyPtr& ptrToVal)
 {
 	SUB(mMemory.ReadByteAtPointer(ptrToVal));
+	mTickElapsedCycles += 2;
 }
 
 // XOR
 void CPU::XOR()
 {
 	XOR(ReadByteFromProgramCounter());
+	mTickElapsedCycles += 2;
 }
 
 void CPU::XOR(uint8_t val)
@@ -881,11 +974,13 @@ void CPU::XOR(uint8_t val)
 void CPU::XOR(ByteRegister& val)
 {
 	XOR(val.GetRegisterValue().ByteMemory);
+	mTickElapsedCycles += 1;
 }
 
 void CPU::XOR(KayosBoyPtr& ptrToVal)
 {
 	XOR(mMemory.ReadByteAtPointer(ptrToVal));
+	mTickElapsedCycles += 2;
 }
 
 // OPCODES 0X
@@ -1060,22 +1155,22 @@ void CPU::_20()
 
 void CPU::_21()
 {
-	LD_PC(mRegisterDE);
+	LD_PC(mRegisterHL);
 }
 
 void CPU::_22()
 {
-	LD(mRegisterDE.RegisterAsAddress(), mRegisterA);
+	LDI(mRegisterHL.RegisterAsAddress(), mRegisterA);
 }
 
 void CPU::_23()
 {
-	INC(mRegisterDE);
+	INC(mRegisterHL);
 }
 
 void CPU::_24()
 {
-	INC(mRegisterD);
+	INC(mRegisterH);
 }
 
 void CPU::_25()
