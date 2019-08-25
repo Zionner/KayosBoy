@@ -17,10 +17,11 @@ class Memory
 
 		uint8_t ReadByteAtPointer(KayosBoyPtr ptr);
 		uint16_t ReadTwoBytesAtPointer(KayosBoyPtr ptr);
+		uint16_t ReadTwoBytesFromTwoVectors(std::vector<uint8_t>& vec1, std::vector<uint8_t>& vec2, uint16_t addr);
 
 		void WriteByteAtPointer(KayosBoyPtr ptr, uint8_t val);
 		void WriteTwoBytesAtPointer(KayosBoyPtr ptr, uint16_t val);
-
+		void WriteTwoBytesIntoTwoVectors(std::vector<uint8_t>& vec1, std::vector<uint8_t>& vec2, uint16_t addr, uint16_t val);
 	protected:
 		bool LoadBootROM(char* path);
 		bool IsRunningBootRom();
@@ -42,7 +43,7 @@ class Memory
 		std::vector<uint8_t> mUnused; // Seems to be unused. Does have some specific behaviours that differ between models, but won't implement this for now.
 		std::vector<uint8_t> mIORegisters;
 		std::vector<uint8_t> mHRAM;
-		uint8_t mInterruptRegister;
+		std::vector<uint8_t> mInterruptRegister;
 };
 
 #endif // _MEMORY_H_

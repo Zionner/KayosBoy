@@ -29,11 +29,11 @@ struct RegisterTwoByteMemory : RegisterByteMemory
 
 struct FlagRegistryMemory
 {
-	bool UnusedBits : 4;
-	bool CarryFlag : 1;
-	bool HalfCarryFlag : 1;
-	bool SubtractFlag : 1;
 	bool ZeroFlag : 1;
+	bool SubtractFlag : 1;
+	bool HalfCarryFlag : 1;
+	bool CarryFlag : 1;
+	bool UnusedBits : 4;
 };
 
 union RegisterMemory

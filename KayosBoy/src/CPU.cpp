@@ -113,8 +113,9 @@ uint64_t CPU::Tick()
 {
 	mTickElapsedCycles = 0;
 
+	printf("\rProgram Counter: 0x%04x", mProgramCounter.GetRegisterValue().PairedBytes);
 	uint8_t opcode = ReadByteFromProgramCounter();
- 	(this->*mOpCodeCommands[opcode])();
+   	(this->*mOpCodeCommands[opcode])();
 
 	return mTickElapsedCycles;
 }
@@ -277,7 +278,7 @@ void CPU::BIT(uint8_t bit, KayosBoyPtr& addressToByteToTest)
 void CPU::CALL()
 {
 	uint16_t addr = ReadTwoBytesFromProgramCounter();
-	PushOntoStackPointer(addr);
+	PushOntoStackPointer(mProgramCounter);
 	mProgramCounter.SetRegister(addr);
 	mTickElapsedCycles += 24;
 }
@@ -790,7 +791,7 @@ void CPU::RL(ByteRegister& registerToRotate)
 void CPU::RL(KayosBoyPtr& addressToByteToRotate)
 {
 	uint8_t val = mMemory.ReadByteAtPointer(addressToByteToRotate);
-	mRegisterF.SetCarryFlag((1 << 7) & val);
+	mRegisterF.SetCarryFlag(val & (1 << 7));
 
 	uint8_t result = (static_cast<uint8_t>(val << 1) | static_cast<uint8_t>(mRegisterF.GetCarryFlag() ? 1 : 0));
 

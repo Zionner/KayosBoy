@@ -21,6 +21,7 @@ class GameBoy
 		const uint32_t mMachineCycle = 1048576;
 
 		uint64_t mCycleCount;
+		uint64_t mFrameCount;
 
 		CPU& mCPU;
 		Memory& mMemory;
