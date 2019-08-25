@@ -18,12 +18,12 @@ CPU::CPU(Memory& mem) :
 	mMemory(mem)
 {
 	SetupCommandStructure();
-	/*mRegisterAF.SetRegister(0x01B0);
+	mRegisterAF.SetRegister(0x01B0);
 	mRegisterBC.SetRegister(0x0013);
 	mRegisterDE.SetRegister(0x00D8);
 	mRegisterHL.SetRegister(0x014D);
 	mStackPointer.SetRegister(0xFFFE);
-	mProgramCounter.SetRegister(0x0100);*/
+	mProgramCounter.SetRegister(0x0100);
 }
 
 void CPU::PushOntoStackPointer(uint16_t val) 
@@ -4081,6 +4081,24 @@ void CPU::SetupCommandStructure()
 	mCBOpCodeCommands.push_back(&CPU::_CB7D);
 	mCBOpCodeCommands.push_back(&CPU::_CB7E);
 	mCBOpCodeCommands.push_back(&CPU::_CB7F);
+
+	// Opcodes 0xCB8X
+	mCBOpCodeCommands.push_back(&CPU::_CB80);
+	mCBOpCodeCommands.push_back(&CPU::_CB81);
+	mCBOpCodeCommands.push_back(&CPU::_CB82);
+	mCBOpCodeCommands.push_back(&CPU::_CB83);
+	mCBOpCodeCommands.push_back(&CPU::_CB84);
+	mCBOpCodeCommands.push_back(&CPU::_CB85);
+	mCBOpCodeCommands.push_back(&CPU::_CB86);
+	mCBOpCodeCommands.push_back(&CPU::_CB87);
+	mCBOpCodeCommands.push_back(&CPU::_CB88);
+	mCBOpCodeCommands.push_back(&CPU::_CB89);
+	mCBOpCodeCommands.push_back(&CPU::_CB8A);
+	mCBOpCodeCommands.push_back(&CPU::_CB8B);
+	mCBOpCodeCommands.push_back(&CPU::_CB8C);
+	mCBOpCodeCommands.push_back(&CPU::_CB8D);
+	mCBOpCodeCommands.push_back(&CPU::_CB8E);
+	mCBOpCodeCommands.push_back(&CPU::_CB8F);
 
 	// Opcodes 0xCB8X
 	mCBOpCodeCommands.push_back(&CPU::_CB90);

@@ -13,10 +13,8 @@ NoMBC::NoMBC(uint8_t* romData, size_t romSize, uint8_t* ramData, size_t ramSize)
 	if (romSize > bankSize)
 	{
 		size_t remainingData = romSize - bankSize;
-		mStaticRomData = std::vector<uint8_t>(bankSize);
-		std::copy(romData, romData + bankSize, std::back_inserter(mStaticRomData)); // Place first 16 KB of ROM into the static bank.
-		mRomBankData = new std::vector<uint8_t>(remainingData); // Place the rest into the second bank.
-		std::copy(romData + bankSize, romData + bankSize + remainingData, std::back_inserter(*mRomBankData));
+		mStaticRomData = std::vector<uint8_t>(romData, romData + bankSize);
+		mRomBankData = new std::vector<uint8_t>(romData + bankSize, romData + bankSize + remainingData); // Place the rest into the second bank.
 	}
 	else
 	{
