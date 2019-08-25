@@ -47,10 +47,10 @@ uint16_t NoMBC::readTwoBytes(KayosBoyPtr& address)
 {
 	uint16_t addr = address.GetPointerVal();
 	uint16_t nextAddr = addr + 1;
-	uint8_t firstByte = ((addr < 0x4000) ? mStaticRomData[addr] :
+	uint8_t secondByte = ((addr < 0x4000) ? mStaticRomData[addr] :
 										   (*mRomBankData)[addr - 0x4000]);
 
-	uint8_t secondByte = ((nextAddr < 0x4000) ? mStaticRomData[nextAddr] :
+	uint8_t firstByte = ((nextAddr < 0x4000) ? mStaticRomData[nextAddr] :
 												(*mRomBankData)[nextAddr - 0x4000]);
 
 	return static_cast<uint16_t>((firstByte << 8) | secondByte);

@@ -239,16 +239,16 @@ void Memory::WriteTwoBytesAtPointer(KayosBoyPtr ptr, uint16_t val)
 
 uint16_t Memory::ReadTwoBytesFromVector(std::vector<uint8_t>& vec, uint16_t addr)
 {
-	uint8_t byteOne = vec[addr];
-	uint8_t byteTwo = vec[addr + 1];
+	uint8_t byteTwo = vec[addr];
+	uint8_t byteOne = vec[addr + 1];
 
 	return static_cast<uint16_t>((byteOne << 8) | byteTwo);
 }
 
 void Memory::WriteTwoBytesIntoVector(std::vector<uint8_t>& vec, uint16_t addr, uint16_t val)
 {
-	uint8_t byteOne = static_cast<uint8_t>(val >> 8);
-	uint8_t byteTwo = static_cast<uint8_t>(val);
+	uint8_t byteTwo = static_cast<uint8_t>(val >> 8);
+	uint8_t byteOne = static_cast<uint8_t>(val);
 
 	vec[addr] = byteOne;
 	vec[addr + 1] = byteTwo;

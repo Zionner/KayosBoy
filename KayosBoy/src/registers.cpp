@@ -17,12 +17,12 @@ RegisterMemory ByteRegister::GetRegisterValue() const
 
 void ByteRegister::SetRegisterBit(uint8_t bit, bool bitVal)
 {
-	mRegisterMem.ByteMemory &= bitVal >> bit;
+	mRegisterMem.ByteMemory &= bitVal << bit;
 }
 
 bool ByteRegister::GetRegisterBit(uint8_t bit) const
 {
-	return (mRegisterMem.ByteMemory >> bit) & 1;
+	return (mRegisterMem.ByteMemory & (1 << bit));
 }
 
 void ByteRegister::IncrementRegister()
@@ -173,12 +173,12 @@ TwoByteRegisterMemory TwoByteRegister::GetRegisterValue() const
 
 void TwoByteRegister::SetRegisterBit(uint8_t bit, bool bitVal)
 {
-	mRegisterMem.PairedBytes &= (bitVal >> bit);
+	mRegisterMem.PairedBytes &= (bitVal << bit);
 }
 
 bool TwoByteRegister::GetRegisterBit(uint8_t bit) const
 {
-	return (mRegisterMem.PairedBytes >> bit) & 1;
+	return (mRegisterMem.PairedBytes & (1 << bit));
 }
 
 RegisterMemory TwoByteRegister::UpperBits()

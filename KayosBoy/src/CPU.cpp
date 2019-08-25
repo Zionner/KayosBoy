@@ -18,6 +18,12 @@ CPU::CPU(Memory& mem) :
 	mMemory(mem)
 {
 	SetupCommandStructure();
+	/*mRegisterAF.SetRegister(0x01B0);
+	mRegisterBC.SetRegister(0x0013);
+	mRegisterDE.SetRegister(0x00D8);
+	mRegisterHL.SetRegister(0x014D);
+	mStackPointer.SetRegister(0xFFFE);
+	mProgramCounter.SetRegister(0x0100);*/
 }
 
 void CPU::PushOntoStackPointer(uint16_t val) 
@@ -44,8 +50,8 @@ void CPU::PushOntoStackPointer(TwoByteRegister& reg)
 
 void CPU::PopFromStackPointer(PairedByteRegister& reg)
 {
-	mStackPointer.Increment();
 	uint16_t result = mMemory.ReadTwoBytesAtPointer(mStackPointer.RegisterAsAddress());
+	mStackPointer.Increment();
 	mStackPointer.Increment();
 
 	reg.SetRegister(result);
@@ -53,8 +59,8 @@ void CPU::PopFromStackPointer(PairedByteRegister& reg)
 
 void CPU::PopFromStackPointer(TwoByteRegister& reg)
 {
-	mStackPointer.Increment();
 	uint16_t result = mMemory.ReadTwoBytesAtPointer(mStackPointer.RegisterAsAddress());
+	mStackPointer.Increment();
 	mStackPointer.Increment();
 
 	reg.SetRegister(result);
@@ -585,7 +591,7 @@ void CPU::LDH_A()
 void CPU::LDH_PC()
 {
 	int8_t val = static_cast<int8_t>(ReadByteFromProgramCounter());
-	mMemory.WriteByteAtPointer(mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF00 + val)), mRegisterA.GetRegisterValue().ByteMemory);
+	mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF00 + val), mRegisterA.GetRegisterValue().ByteMemory);
 	mTickElapsedCycles += 3;
 }
 
@@ -730,7 +736,17 @@ void CPU::RETI()
 // RLA
 void CPU::RLA()
 {
-	printf("RLA not implemented \n");
+	uint8_t val = mRegisterA.GetRegisterValue().ByteMemory;
+	mRegisterF.SetCarryFlag(mRegisterA.GetRegisterValue().StructuredByteMemory.Bit07);
+
+	uint8_t result = (static_cast<uint8_t>(val << 1) | static_cast<uint8_t>(mRegisterF.GetCarryFlag() ? 1 : 0));
+
+	mRegisterA.SetRegister(result);
+
+	mRegisterF.SetZeroFlag(false);
+	mRegisterF.SetHalfCarryFlag(false);
+	mRegisterF.SetSubtractFlag(false);
+
 	mTickElapsedCycles += 1;
 }
 
@@ -757,13 +773,35 @@ void CPU::RLC(KayosBoyPtr& addressToByteToRotate)
 // RL
 void CPU::RL(ByteRegister& registerToRotate)
 {
-	printf("RL not implemented \n");
+ 	uint8_t val = registerToRotate.GetRegisterValue().ByteMemory;
+	mRegisterF.SetCarryFlag(registerToRotate.GetRegisterValue().StructuredByteMemory.Bit07);
+
+	uint8_t result = (static_cast<uint8_t>(val << 1) | static_cast<uint8_t>(mRegisterF.GetCarryFlag() ? 1 : 0));
+
+	registerToRotate.SetRegister(result);
+
+	mRegisterF.SetZeroFlag(result == 0);
+	mRegisterF.SetHalfCarryFlag(false);
+	mRegisterF.SetSubtractFlag(false);
+
 	mTickElapsedCycles += 2;
 }
 
 void CPU::RL(KayosBoyPtr& addressToByteToRotate)
 {
-	printf("RL not implemented \n");
+	uint8_t val = mMemory.ReadByteAtPointer(addressToByteToRotate);
+	mRegisterF.SetCarryFlag((1 << 7) & val);
+
+	uint8_t result = (static_cast<uint8_t>(val << 1) | static_cast<uint8_t>(mRegisterF.GetCarryFlag() ? 1 : 0));
+
+	mMemory.WriteByteAtPointer(addressToByteToRotate, result);
+
+	mRegisterF.SetZeroFlag(result == 0);
+	mRegisterF.SetHalfCarryFlag(false);
+	mRegisterF.SetSubtractFlag(false);
+
+
+
 	mTickElapsedCycles += 4;
 }
 
@@ -1114,7 +1152,7 @@ void CPU::_18()
 void CPU::_19()
 {
 	ADD(mRegisterDE);
-}
+}\
 
 void CPU::_1A()
 {
@@ -2147,7 +2185,7 @@ void CPU::_E1()
 
 void CPU::_E2()
 {
-	LDH_CAddr_A();
+	LDH_C();
 }
 
 void CPU::_E3()
