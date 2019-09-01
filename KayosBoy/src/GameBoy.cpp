@@ -28,22 +28,13 @@ void GameBoy::Tick()
 
 	mTimer.Tick(elapsedCycles);
 
- // x - total cycles
- // y - machine cycles
- // z - target framerate
- // a - isVBlank
- // b = x/z = cycles per frame
- // a = 
-
 	// Hack send 60 FPS VBlank
 	if (mCycleCount > ((mMachineCycle / 60) * mFrameCount))
 	{
 		mFrameCount++;
-		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF00 + 0x0044), 1);
-	}
-	else
-	{
-		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF00 + 0x0044), 0);
+
+		uint8_t interrupts = mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF0F));
+		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), static_cast<uint8_t>(interrupts | (0 >> 1))); // set bit 0 to 1
 	}
 
 }

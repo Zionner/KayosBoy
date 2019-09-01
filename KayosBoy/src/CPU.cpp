@@ -18,12 +18,14 @@ CPU::CPU(Memory& mem) :
 	mMemory(mem)
 {
 	SetupCommandStructure();
-	mRegisterAF.SetRegister(0x01B0);
+
+	// This shit skips the ROM and initializes the registers to the DMG default values.
+	/*mRegisterAF.SetRegister(0x01B0);
 	mRegisterBC.SetRegister(0x0013);
 	mRegisterDE.SetRegister(0x00D8);
 	mRegisterHL.SetRegister(0x014D);
 	mStackPointer.SetRegister(0xFFFE);
-	mProgramCounter.SetRegister(0x0100);
+	mProgramCounter.SetRegister(0x0100);*/
 }
 
 void CPU::PushOntoStackPointer(uint16_t val) 
@@ -109,9 +111,74 @@ KayosBoyPtr CPU::ReadAddressFromProgramCounter()
 	return addr;
 }
 
+uint64_t CPU::CheckForAndExecuteInterrupts()
+{
+	if (mIsInterruptPending)
+	{
+		mIsInterruptPending = false;
+		mIsInterruptsEnabled = true;
+		return 0;
+
+	}
+
+	if (!mIsInterruptsEnabled)
+	{
+		return 0;
+	}
+
+	uint8_t interrupts = mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF0F));
+	uint8_t interruptsEnabled = mMemory.ReadByteAtPointer(KayosBoyPtr(0xFFFF));
+
+	bool hasRequestedVBlink = (interrupts & (1 << 0)) && (interruptsEnabled & (1 << 0));
+	bool hasRequestedLCDStat = (interrupts & (1 << 1)) && (interruptsEnabled & (1 << 1));
+	bool hasRequestedTimer = (interrupts & (1 << 2)) && (interruptsEnabled & (1 << 2));
+	bool hasRequestedSerial = (interrupts & (1 << 3)) && (interruptsEnabled & (1 << 3));
+	bool hasRequestedJoypad = (interrupts & (1 << 4)) && (interruptsEnabled & (1 << 4));
+
+	if (hasRequestedVBlink)
+	{
+		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 0));
+		PushOntoStackPointer(ReadByteFromProgramCounter());
+		mProgramCounter.SetRegister(InterruptVectors::IT_VerticalBlank);
+		return 0;
+	}
+	else if (hasRequestedLCDStat)
+	{
+		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 1));
+		PushOntoStackPointer(ReadByteFromProgramCounter());
+		mProgramCounter.SetRegister(InterruptVectors::IT_LCDStat);
+		return 0;
+	}
+	else if (hasRequestedTimer)
+	{
+		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 2));
+		PushOntoStackPointer(ReadByteFromProgramCounter());
+		mProgramCounter.SetRegister(InterruptVectors::IT_TimerInterrupt);
+		return 0;
+	}
+	else if (hasRequestedSerial)
+	{
+		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 3));
+		PushOntoStackPointer(ReadByteFromProgramCounter());
+		mProgramCounter.SetRegister(InterruptVectors::IT_SerialInterrupt);
+		return 0;
+	}
+	else if (hasRequestedJoypad)
+	{
+		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 4));
+		PushOntoStackPointer(ReadByteFromProgramCounter());
+		mProgramCounter.SetRegister(InterruptVectors::IT_JoypadInterrupt);
+		return 0;
+	}
+
+	return 0;
+}
+
 uint64_t CPU::Tick()
 {
 	mTickElapsedCycles = 0;
+
+	CheckForAndExecuteInterrupts();
 
 	printf("\rProgram Counter: 0x%04x", mProgramCounter.GetRegisterValue().PairedBytes);
 	uint8_t opcode = ReadByteFromProgramCounter();
@@ -396,7 +463,7 @@ void CPU::DI()
 // EI
 void CPU::EI()
 {
-	mIsInterruptsEnabled = true;
+	mIsInterruptPending = true;
 	mTickElapsedCycles += 1;
 }
 
@@ -730,7 +797,7 @@ void CPU::RET(Condition flagCondition)
 void CPU::RETI()
 {
 	RET();
-	EI();
+	mIsInterruptsEnabled = true; // Not using EI here, because apparently RETI immediately enables interrupts vs EI's enable after next instruction.
 	mTickElapsedCycles += 4;
 }
 
@@ -4100,7 +4167,7 @@ void CPU::SetupCommandStructure()
 	mCBOpCodeCommands.push_back(&CPU::_CB8E);
 	mCBOpCodeCommands.push_back(&CPU::_CB8F);
 
-	// Opcodes 0xCB8X
+	// Opcodes 0xCB9X
 	mCBOpCodeCommands.push_back(&CPU::_CB90);
 	mCBOpCodeCommands.push_back(&CPU::_CB91);
 	mCBOpCodeCommands.push_back(&CPU::_CB92);

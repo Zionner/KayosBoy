@@ -72,6 +72,14 @@ uint8_t Memory::ReadByteAtPointer(KayosBoyPtr ptr)
 	{
 		return (*mBankWRam)[addr - 0xD000]; // This will need to be changed when WRam banking is implemented for GBC.
 	}
+	else if (addr >= 0xE000 && addr <= 0xEFFF)
+	{
+		return mStaticWRam[addr - 0xE000];
+	}
+	else if (addr >= 0xF000 && addr <= 0xFDFF)
+	{
+		return (*mBankWRam)[addr - 0xF000]; // This will need to be changed when WRam banking is implemented for GBC.
+	}
 	else if(addr >= 0xFE00 && addr <= 0xFE9F)
 	{
 		return mOAM[addr - 0xFE00];
@@ -138,10 +146,28 @@ uint16_t Memory::ReadTwoBytesAtPointer(KayosBoyPtr ptr)
 	{
 		if (addr == 0xDFFF)
 		{
-			return ReadTwoBytesFromTwoVectors((*mBankWRam), mOAM, addr - 0xD000);
+			return ReadTwoBytesFromTwoVectors((*mBankWRam), mStaticWRam, addr - 0xD000);
 		}
 
 		return ReadTwoBytesFromVector((*mBankWRam), addr - 0xD000);// This will need to be changed when WRam banking is implemented for GBC.
+	}
+	else if (addr >= 0xE000 && addr <= 0xEFFF)
+	{
+		if (addr == 0xEFFF)
+		{
+			return ReadTwoBytesFromTwoVectors(mStaticWRam, (*mBankWRam), addr - 0xE000);
+		}
+
+		return ReadTwoBytesFromVector(mStaticWRam, addr - 0xE000);
+	}
+	else if (addr >= 0xF000 && addr <= 0xFDFF)
+	{
+		if (addr == 0xF000)
+		{
+			return ReadTwoBytesFromTwoVectors((*mBankWRam), mOAM, addr - 0xF000);
+		}
+
+		return ReadTwoBytesFromVector((*mBankWRam), addr - 0xF000);// This will need to be changed when WRam banking is implemented for GBC.
 	}
 	else if (addr >= 0xFE00 && addr <= 0xFE9F)
 	{
@@ -208,6 +234,14 @@ void Memory::WriteByteAtPointer(KayosBoyPtr ptr, uint8_t val)
 	{
 		(*mBankWRam)[addr - 0xD000] = val; // This will need to be changed when WRam banking is implemented for GBC.
 	}
+	else if (addr >= 0xE000 && addr <= 0xEFFF)
+	{
+		mStaticWRam[addr - 0xE000] = val;
+	}
+	else if (addr >= 0xF000 && addr <= 0xFDFF)
+	{
+		(*mBankWRam)[addr - 0xF000] = val; // This will need to be changed when WRam banking is implemented for GBC.
+	}
 	else if (addr >= 0xFE00 && addr <= 0xFE9F)
 	{
 		mOAM[addr - 0xFE00] = val;
@@ -260,10 +294,28 @@ void Memory::WriteTwoBytesAtPointer(KayosBoyPtr ptr, uint16_t val)
 	{
 		if (addr == 0xDFFF)
 		{
-			return WriteTwoBytesIntoTwoVectors((*mBankWRam), mOAM, addr - 0xD000, val);
+			return WriteTwoBytesIntoTwoVectors((*mBankWRam), mStaticWRam, addr - 0xD000, val);
 		}
 
 		WriteTwoBytesIntoVector((*mBankWRam), addr - 0xD000, val);// This will need to be changed when WRam banking is implemented for GBC.
+	}
+	else if (addr >= 0xE000 && addr <= 0xEFFF)
+	{
+		if (addr == 0xEFFF)
+		{
+			return WriteTwoBytesIntoTwoVectors(mStaticWRam, (*mBankWRam), addr - 0xE000, val);
+		}
+
+		WriteTwoBytesIntoVector(mStaticWRam, addr - 0xE000, val);
+	}
+	else if (addr >= 0xF000 && addr <= 0xFDFF)
+	{
+		if (addr == 0xF000)
+		{
+			return WriteTwoBytesIntoTwoVectors((*mBankWRam), mOAM, addr - 0xF000, val);
+		}
+
+		WriteTwoBytesIntoVector((*mBankWRam), addr - 0xF000, val);// This will need to be changed when WRam banking is implemented for GBC.
 	}
 	else if (addr >= 0xFE00 && addr <= 0xFE9F)
 	{

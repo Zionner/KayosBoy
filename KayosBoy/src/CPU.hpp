@@ -4,6 +4,16 @@
 #include "memory.hpp"
 #include <vector>
 
+enum InterruptVectors : uint16_t
+{
+	IT_VerticalBlank = 0x0040,
+	IT_LCDStat = 0x0048,
+	IT_TimerInterrupt = 0x0050,
+	IT_SerialInterrupt = 0x0058,
+	IT_JoypadInterrupt = 0x0060,
+
+};
+
 enum Condition : uint8_t
 {
 	NotZero,
@@ -22,9 +32,12 @@ public:
 protected:
 	typedef void(CPU::*OpCodeFunction)();
 
+	uint64_t CheckForAndExecuteInterrupts();
+
 	std::vector<OpCodeFunction> mOpCodeCommands;
 	std::vector<OpCodeFunction> mCBOpCodeCommands;
 
+	bool mIsInterruptPending;
 	bool mIsInterruptsEnabled;
 
 	Memory& mMemory;
