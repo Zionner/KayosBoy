@@ -33,8 +33,8 @@ void GameBoy::Tick()
 	{
 		mFrameCount++;
 
-		uint8_t interrupts = mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF0F));
-		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), static_cast<uint8_t>(interrupts | (0 >> 1))); // set bit 0 to 1
+		uint8_t interrupts = mMemory.ReadByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister));
+		mMemory.WriteByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister), static_cast<uint8_t>(interrupts | (0 >> 1))); // set bit 0 to 1
 	}
 
 }

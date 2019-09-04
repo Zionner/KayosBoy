@@ -1,7 +1,11 @@
 #include "timer.hpp"
 
 Timer::Timer(Memory& mem) :
-	mMemory(mem)
+	mMemory(mem),
+	mIsTimerEnabled(false),
+	mFrequencyDividerMode(TimerFrequencyDivider::TFD_4096),
+	mLastFrequencyDividerMode(TimerFrequencyDivider::TFD_4096),
+	mCycleCounter(0x00)
 {
 
 }
@@ -35,8 +39,8 @@ void Timer::Tick(uint64_t elapsedCycles)
 	{
 		mCycleCounter = 0;
 
-		uint8_t interrupts = mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF0F));
-		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), static_cast<uint8_t>(interrupts | (2 >> 1))); // set bit 2 to 1
+		uint8_t interrupts = mMemory.ReadByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister));
+		mMemory.WriteByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister), static_cast<uint8_t>(interrupts | (2 >> 1))); // set bit 2 to 1
 
 		uint8_t timerCounter = GetTimerCounter();
 

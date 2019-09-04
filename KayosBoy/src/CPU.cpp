@@ -126,8 +126,8 @@ uint64_t CPU::CheckForAndExecuteInterrupts()
 		return 0;
 	}
 
-	uint8_t interrupts = mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF0F));
-	uint8_t interruptsEnabled = mMemory.ReadByteAtPointer(KayosBoyPtr(0xFFFF));
+	uint8_t interrupts = mMemory.ReadByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister));
+	uint8_t interruptsEnabled = mMemory.ReadByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptEnableFlags));
 
 	bool hasRequestedVBlink = (interrupts & (1 << 0)) && (interruptsEnabled & (1 << 0));
 	bool hasRequestedLCDStat = (interrupts & (1 << 1)) && (interruptsEnabled & (1 << 1));
@@ -137,35 +137,35 @@ uint64_t CPU::CheckForAndExecuteInterrupts()
 
 	if (hasRequestedVBlink)
 	{
-		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 0));
+		mMemory.WriteByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister), interrupts | (0 << 0));
 		PushOntoStackPointer(ReadByteFromProgramCounter());
 		mProgramCounter.SetRegister(InterruptVectors::IT_VerticalBlank);
 		return 0;
 	}
 	else if (hasRequestedLCDStat)
 	{
-		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 1));
+		mMemory.WriteByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister), interrupts | (0 << 1));
 		PushOntoStackPointer(ReadByteFromProgramCounter());
 		mProgramCounter.SetRegister(InterruptVectors::IT_LCDStat);
 		return 0;
 	}
 	else if (hasRequestedTimer)
 	{
-		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 2));
+		mMemory.WriteByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister), interrupts | (0 << 2));
 		PushOntoStackPointer(ReadByteFromProgramCounter());
 		mProgramCounter.SetRegister(InterruptVectors::IT_TimerInterrupt);
 		return 0;
 	}
 	else if (hasRequestedSerial)
 	{
-		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 3));
+		mMemory.WriteByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister), interrupts | (0 << 3));
 		PushOntoStackPointer(ReadByteFromProgramCounter());
 		mProgramCounter.SetRegister(InterruptVectors::IT_SerialInterrupt);
 		return 0;
 	}
 	else if (hasRequestedJoypad)
 	{
-		mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF0F), interrupts | (0 << 4));
+		mMemory.WriteByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_InterruptFlagRegister), interrupts | (0 << 4));
 		PushOntoStackPointer(ReadByteFromProgramCounter());
 		mProgramCounter.SetRegister(InterruptVectors::IT_JoypadInterrupt);
 		return 0;
@@ -652,26 +652,26 @@ void CPU::LDD(KayosBoyPtr& ptrToSet, ByteRegister& val)
 void CPU::LDH_A()
 {
 	int8_t val = static_cast<int8_t>(ReadByteFromProgramCounter());
-	mRegisterA.SetRegister(mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF00 + val)));
+	mRegisterA.SetRegister(mMemory.ReadByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_StartOfIORegisters + val)));
 	mTickElapsedCycles += 3;
 }
 
 void CPU::LDH_PC()
 {
 	int8_t val = static_cast<int8_t>(ReadByteFromProgramCounter());
-	mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF00 + val), mRegisterA.GetRegisterValue().ByteMemory);
+	mMemory.WriteByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_StartOfIORegisters + val), mRegisterA.GetRegisterValue().ByteMemory);
 	mTickElapsedCycles += 3;
 }
 
 void CPU::LDH_C()
 {
-	mMemory.WriteByteAtPointer(KayosBoyPtr(0xFF00 + mRegisterC.GetRegisterValue().ByteMemory), mRegisterA.GetRegisterValue().ByteMemory);
+	mMemory.WriteByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_StartOfIORegisters + mRegisterC.GetRegisterValue().ByteMemory), mRegisterA.GetRegisterValue().ByteMemory);
 	mTickElapsedCycles += 2;
 }
 
 void CPU::LDH_CAddr_A()
 {
-	mRegisterA.SetRegister(mMemory.ReadByteAtPointer(KayosBoyPtr(0xFF00 + mRegisterC.GetRegisterValue().ByteMemory)));
+	mRegisterA.SetRegister(mMemory.ReadByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_StartOfIORegisters + mRegisterC.GetRegisterValue().ByteMemory)));
 	mTickElapsedCycles += 2;
 }
 
@@ -2112,7 +2112,7 @@ void CPU::_C6()
 
 void CPU::_C7()
 {
-	RST(0x00);
+	RST(ResetVectors::RV_00);
 }
 
 void CPU::_C8()
@@ -2154,7 +2154,7 @@ void CPU::_CE()
 
 void CPU::_CF()
 {
-	RST(0x08);
+	RST(ResetVectors::RV_08);
 }
 
 
@@ -2196,7 +2196,7 @@ void CPU::_D6()
 
 void CPU::_D7()
 {
-	RST(0x10);
+	RST(ResetVectors::RV_10);
 }
 
 void CPU::_D8()
@@ -2236,7 +2236,7 @@ void CPU::_DE()
 
 void CPU::_DF()
 {
-	RST(0x18);
+	RST(ResetVectors::RV_18);
 }
 
 
@@ -2278,7 +2278,7 @@ void CPU::_E6()
 
 void CPU::_E7()
 {
-	RST(0x20);
+	RST(ResetVectors::RV_20);
 }
 
 void CPU::_E8()
@@ -2318,7 +2318,7 @@ void CPU::_EE()
 
 void CPU::_EF()
 {
-	RST(0x28);
+	RST(ResetVectors::RV_28);
 }
 
 
@@ -2360,7 +2360,7 @@ void CPU::_F6()
 
 void CPU::_F7()
 {
-	RST(0x30);
+	RST(ResetVectors::RV_30);
 }
 
 void CPU::_F8()
@@ -2400,7 +2400,7 @@ void CPU::_FE()
 
 void CPU::_FF()
 {
-	RST(0x38);
+	RST(ResetVectors::RV_38);
 }
 
 

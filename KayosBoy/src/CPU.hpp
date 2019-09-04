@@ -4,6 +4,19 @@
 #include "memory.hpp"
 #include <vector>
 
+enum ResetVectors : uint16_t
+{
+	RV_00 = 0x0000,
+	RV_08 = 0x0008,
+	RV_10 = 0x0010,
+	RV_18 = 0x0018,
+	RV_20 = 0x0020,
+	RV_28 = 0x0028,
+	RV_30 = 0x0030,
+	RV_38 = 0x0038,
+
+};
+
 enum InterruptVectors : uint16_t
 {
 	IT_VerticalBlank = 0x0040,

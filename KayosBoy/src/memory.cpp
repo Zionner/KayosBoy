@@ -4,14 +4,14 @@
 Memory::Memory(char* const pathToBootRom, Cartridge& cart) :
 	mCartridge(cart)
 {
-	mVRam = new std::vector<uint8_t>(0x2000);
-	mStaticWRam.resize(0x1000);
-	mBankWRam = new std::vector<uint8_t>(0x1000);
-	mOAM.resize(0x00A0);
-	mUnused.resize(0x0060);
-	mIORegisters.resize(0x0080);
-	mHRAM.resize(0x007F); // Last byte is for the interrupt register
-	mInterruptRegister.resize(0x0001);
+	mVRam = new std::vector<uint8_t>((ImportantMemoryAddresses::IMA_EndOfVRAM - ImportantMemoryAddresses::IMA_StartOfVRAM) + 1);
+	mStaticWRam.resize((ImportantMemoryAddresses::IMA_EndOfStaticWRAM - ImportantMemoryAddresses::IMA_StartOfStaticWRAM) + 1);
+	mBankWRam = new std::vector<uint8_t>((ImportantMemoryAddresses::IMA_EndOfSwitchWRAM - ImportantMemoryAddresses::IMA_StartOfSwitchWRAM) + 1);
+	mOAM.resize((ImportantMemoryAddresses::IMA_EndOfOAM - ImportantMemoryAddresses::IMA_StartOfOAM) + 1);
+	mUnused.resize((ImportantMemoryAddresses::IMA_EndOfUnused - ImportantMemoryAddresses::IMA_StartOfUnused) + 1);
+	mIORegisters.resize((ImportantMemoryAddresses::IMA_EndOfIORegisters- ImportantMemoryAddresses::IMA_StartOfIORegisters) + 1);
+	mHRAM.resize((ImportantMemoryAddresses::IMA_EndOfHRAM - ImportantMemoryAddresses::IMA_StartOfHRAM) + 1); // Last byte is for the interrupt register
+	mInterruptRegister.resize(0x0001); // This is just a one byte flag register. It's only a vector for ease of use with the rest of the memory.
 
 	LoadBootROM(pathToBootRom);
 }
@@ -33,9 +33,8 @@ bool Memory::LoadBootROM(char* const path)
 
 bool Memory::IsRunningBootRom()
 {
-	// This is not using our functions, because it would cause an infinite loop. So we're going straight to the ram address.
 	// 0x0050 is because the real RAM address is 0xFF50, but the IO registers start at 0xFF00, so 0xFF50 - 0xFF00 = 0x0050
-	uint8_t val = mIORegisters[0x0050]; 
+	uint8_t val = mIORegisters[ImportantMemoryAddresses::IMA_BootROMEnabledFlag - ImportantMemoryAddresses::IMA_StartOfIORegisters];
 
 	return ((val & 1) | (1 >> 8)) == 0;
 }
@@ -46,59 +45,55 @@ uint8_t Memory::ReadByteAtPointer(KayosBoyPtr ptr)
 
 	if (IsRunningBootRom())
 	{
-		if (addr < 0x0100)
+		if (addr <= ImportantMemoryAddresses::IMA_BootRomEnd)
 		{
 			return mBootRom[addr];
 		}
-		/*else
-		{
-			return 0xFF;
-		}*/
 	}
 
-	if	(addr <= 0x7FFF || (addr >= 0xA000 && addr <= 0xBFFF))
+	if	(addr <= IMA_EndOfSwitableROM || (addr >= ImportantMemoryAddresses::IMA_StartOfCartridgeRam && addr <= ImportantMemoryAddresses::IMA_EndOfCartridgeRam))
 	{
 		return mCartridge.read(ptr);
 	}
-	else if (addr >= 0x8000 && addr <= 0x9FFF) // VRam. Does not check for VBlink interrupts yet.
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfVRAM && addr <= ImportantMemoryAddresses::IMA_EndOfVRAM) // VRam. Does not check for VBlink interrupts yet.
 	{
-		return (*mVRam)[addr - 0x8000]; // This will need to be changed when VRam banking is implemented for GBC.
+		return (*mVRam)[addr - ImportantMemoryAddresses::IMA_StartOfVRAM]; // This will need to be changed when VRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xC000 && addr <= 0xCFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfStaticWRAM && addr <= ImportantMemoryAddresses::IMA_EndOfStaticWRAM)
 	{
-		return mStaticWRam[addr - 0xC000];
+		return mStaticWRam[addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAM];
 	}
-	else if (addr >= 0xD000 && addr <= 0xDFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfSwitchWRAM && addr <= ImportantMemoryAddresses::IMA_EndOfSwitchWRAM)
 	{
-		return (*mBankWRam)[addr - 0xD000]; // This will need to be changed when WRam banking is implemented for GBC.
+		return (*mBankWRam)[addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAM]; // This will need to be changed when WRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xE000 && addr <= 0xEFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho && addr <= ImportantMemoryAddresses::IMA_EndOfStaticWRAMEcho)
 	{
-		return mStaticWRam[addr - 0xE000];
+		return mStaticWRam[addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho];
 	}
-	else if (addr >= 0xF000 && addr <= 0xFDFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho && addr <= ImportantMemoryAddresses::IMA_EndOfSwitchWRAMEcho)
 	{
-		return (*mBankWRam)[addr - 0xF000]; // This will need to be changed when WRam banking is implemented for GBC.
+		return (*mBankWRam)[addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho]; // This will need to be changed when WRam banking is implemented for GBC.
 	}
-	else if(addr >= 0xFE00 && addr <= 0xFE9F)
+	else if(addr >= ImportantMemoryAddresses::IMA_StartOfOAM && addr <= ImportantMemoryAddresses::IMA_EndOfOAM)
 	{
-		return mOAM[addr - 0xFE00];
+		return mOAM[addr - ImportantMemoryAddresses::IMA_StartOfOAM];
 	}
-	else if (addr >= 0xFEA0 && addr <= 0xFEFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfUnused && addr <= ImportantMemoryAddresses::IMA_EndOfUnused)
 	{
-		return mUnused[addr - 0xFEA0];
+		return mUnused[addr - ImportantMemoryAddresses::IMA_StartOfUnused];
 	}
-	else if (addr >= 0xFF00 && addr <= 0xFF7F)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfIORegisters && addr <= ImportantMemoryAddresses::IMA_EndOfIORegisters)
 	{
-		return mIORegisters[addr - 0xFF00];
+		return mIORegisters[addr - ImportantMemoryAddresses::IMA_StartOfIORegisters];
 	}
-	else if (addr >= 0xFF80 && addr <= 0xFFFE)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfHRAM && addr <= ImportantMemoryAddresses::IMA_EndOfHRAM)
 	{
-		return mHRAM[addr - 0xFF80];
+		return mHRAM[addr - ImportantMemoryAddresses::IMA_StartOfHRAM];
 	}
-	else if (addr == 0xFFFF)
+	else if (addr == ImportantMemoryAddresses::IMA_InterruptEnableFlags)
 	{
-		return mInterruptRegister[addr - 0xFFFF];
+		return mInterruptRegister[addr - ImportantMemoryAddresses::IMA_InterruptEnableFlags];
 	}
 
 	return -1; // This will overflow, on purpose.
@@ -110,102 +105,98 @@ uint16_t Memory::ReadTwoBytesAtPointer(KayosBoyPtr ptr)
 
 	if (IsRunningBootRom())
 	{
-		if (addr < 0x0100)
+		if (addr < ImportantMemoryAddresses::IMA_BootRomEnd)
 		{
 			return ReadTwoBytesFromVector(mBootRom, addr);
 		}
-		/*else
-		{
-			return 0xFF;
-		}*/
 	}
 
-	if (addr <= 0x7FFF || (addr >= 0xA000 && addr <= 0xBFFF))
+	if (addr <= ImportantMemoryAddresses::IMA_EndOfSwitableROM || (addr >= ImportantMemoryAddresses::IMA_StartOfCartridgeRam && addr <= ImportantMemoryAddresses::IMA_EndOfCartridgeRam))
 	{
 		return mCartridge.readTwoBytes(ptr);
 	}
-	else if (addr >= 0x8000 && addr <= 0x9FFF) // VRam. Does not check for VBlink interrupts yet.
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfVRAM && addr <= ImportantMemoryAddresses::IMA_EndOfVRAM) // VRam. Does not check for VBlink interrupts yet.
 	{
-		if(addr == 0x9FFF)
+		if(addr == ImportantMemoryAddresses::IMA_EndOfVRAM)
 		{
-			return ReadTwoBytesFromTwoVectors((*mVRam), mStaticWRam, addr - 0x8000);
+			return ReadTwoBytesFromTwoVectors((*mVRam), mStaticWRam, addr - ImportantMemoryAddresses::IMA_StartOfVRAM);
 		}
 
-		return ReadTwoBytesFromVector((*mVRam), addr - 0x8000); // This will need to be changed when VRam banking is implemented for GBC.
+		return ReadTwoBytesFromVector((*mVRam), addr - ImportantMemoryAddresses::IMA_StartOfVRAM); // This will need to be changed when VRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xC000 && addr <= 0xCFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfStaticWRAM && addr <= ImportantMemoryAddresses::IMA_EndOfStaticWRAM)
 	{
-		if (addr == 0xCFFF)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfStaticWRAM)
 		{
-			return ReadTwoBytesFromTwoVectors(mStaticWRam, (*mBankWRam), addr - 0xC000);
+			return ReadTwoBytesFromTwoVectors(mStaticWRam, (*mBankWRam), addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAM);
 		}
 
-		return ReadTwoBytesFromVector(mStaticWRam, addr - 0xC000);
+		return ReadTwoBytesFromVector(mStaticWRam, addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAM);
 	}
-	else if (addr >= 0xD000 && addr <= 0xDFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfSwitchWRAM && addr <= ImportantMemoryAddresses::IMA_EndOfSwitchWRAM)
 	{
-		if (addr == 0xDFFF)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfSwitchWRAM)
 		{
-			return ReadTwoBytesFromTwoVectors((*mBankWRam), mStaticWRam, addr - 0xD000);
+			return ReadTwoBytesFromTwoVectors((*mBankWRam), mStaticWRam, addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAM);
 		}
 
-		return ReadTwoBytesFromVector((*mBankWRam), addr - 0xD000);// This will need to be changed when WRam banking is implemented for GBC.
+		return ReadTwoBytesFromVector((*mBankWRam), addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAM);// This will need to be changed when WRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xE000 && addr <= 0xEFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho && addr <= ImportantMemoryAddresses::IMA_EndOfStaticWRAMEcho)
 	{
-		if (addr == 0xEFFF)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfStaticWRAMEcho)
 		{
-			return ReadTwoBytesFromTwoVectors(mStaticWRam, (*mBankWRam), addr - 0xE000);
+			return ReadTwoBytesFromTwoVectors(mStaticWRam, (*mBankWRam), addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho);
 		}
 
-		return ReadTwoBytesFromVector(mStaticWRam, addr - 0xE000);
+		return ReadTwoBytesFromVector(mStaticWRam, addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho);
 	}
-	else if (addr >= 0xF000 && addr <= 0xFDFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho && addr <= ImportantMemoryAddresses::IMA_EndOfSwitchWRAMEcho)
 	{
-		if (addr == 0xF000)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfSwitchWRAMEcho)
 		{
-			return ReadTwoBytesFromTwoVectors((*mBankWRam), mOAM, addr - 0xF000);
+			return ReadTwoBytesFromTwoVectors((*mBankWRam), mOAM, addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho);
 		}
 
-		return ReadTwoBytesFromVector((*mBankWRam), addr - 0xF000);// This will need to be changed when WRam banking is implemented for GBC.
+		return ReadTwoBytesFromVector((*mBankWRam), addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho);// This will need to be changed when WRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xFE00 && addr <= 0xFE9F)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfOAM && addr <= ImportantMemoryAddresses::IMA_EndOfOAM)
 	{
-		if (addr == 0xFE9F)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfOAM)
 		{
-			return ReadTwoBytesFromTwoVectors(mOAM, mUnused, addr - 0xFE00);
+			return ReadTwoBytesFromTwoVectors(mOAM, mUnused, addr - ImportantMemoryAddresses::IMA_StartOfOAM);
 		}
 
-		return ReadTwoBytesFromVector(mOAM, addr - 0xFE00);
+		return ReadTwoBytesFromVector(mOAM, addr - ImportantMemoryAddresses::IMA_StartOfOAM);
 	}
-	else if (addr >= 0xFEA0 && addr <= 0xFEFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfUnused && addr <= ImportantMemoryAddresses::IMA_EndOfUnused)
 	{
-		if (addr == 0xFEFF)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfUnused)
 		{
-			return ReadTwoBytesFromTwoVectors(mUnused, mIORegisters, addr - 0xFEA0);
+			return ReadTwoBytesFromTwoVectors(mUnused, mIORegisters, addr - ImportantMemoryAddresses::IMA_StartOfUnused);
 		}
 
-		return ReadTwoBytesFromVector(mUnused, addr - 0xFEA0);
+		return ReadTwoBytesFromVector(mUnused, addr - ImportantMemoryAddresses::IMA_StartOfUnused);
 	}
-	else if (addr >= 0xFF00 && addr <= 0xFF7F)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfIORegisters && addr <= ImportantMemoryAddresses::IMA_EndOfIORegisters)
 	{
-		if (addr == 0xFF7F)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfIORegisters)
 		{
-			return ReadTwoBytesFromTwoVectors(mIORegisters, mHRAM, addr - 0xFF00);
+			return ReadTwoBytesFromTwoVectors(mIORegisters, mHRAM, addr - ImportantMemoryAddresses::IMA_StartOfIORegisters);
 		}
 
-		return ReadTwoBytesFromVector(mIORegisters, addr - 0xFF00);
+		return ReadTwoBytesFromVector(mIORegisters, addr - ImportantMemoryAddresses::IMA_StartOfIORegisters);
 	}
-	else if (addr >= 0xFF80 && addr <= 0xFFFE)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfHRAM && addr <= ImportantMemoryAddresses::IMA_EndOfHRAM)
 	{
-		if (addr == 0xFFFE)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfHRAM)
 		{
-			return ReadTwoBytesFromTwoVectors(mHRAM, mInterruptRegister, addr - 0xFF80);
+			return ReadTwoBytesFromTwoVectors(mHRAM, mInterruptRegister, addr - ImportantMemoryAddresses::IMA_StartOfHRAM);
 		}
 
-		return ReadTwoBytesFromVector(mHRAM, addr - 0xFF80);
+		return ReadTwoBytesFromVector(mHRAM, addr - ImportantMemoryAddresses::IMA_StartOfHRAM);
 	}
-	else if (addr == 0xFFFF)
+	else if (addr == ImportantMemoryAddresses::IMA_InterruptEnableFlags)
 	{
 		printf("ERROR: Trying to get two bytes from addr 0xFFFF \n");
 		return -1; // This will overflow, on purpose.
@@ -218,47 +209,47 @@ void Memory::WriteByteAtPointer(KayosBoyPtr ptr, uint8_t val)
 {
 	uint16_t addr = ptr.GetPointerVal();
 
-	if (addr <= 0x7FFF || (addr >= 0xA000 && addr <= 0xBFFF))
+	if (addr <= ImportantMemoryAddresses::IMA_EndOfSwitableROM || (addr >= ImportantMemoryAddresses::IMA_StartOfCartridgeRam && addr <= ImportantMemoryAddresses::IMA_EndOfCartridgeRam))
 	{
 		mCartridge.write(ptr, val);
 	}
-	else if (addr >= 0x8000 && addr <= 0x9FFF) // VRam. Does not check for VBlink interrupts yet.
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfVRAM && addr <= ImportantMemoryAddresses::IMA_EndOfVRAM) // VRam. Does not check for VBlink interrupts yet.
 	{
-		(*mVRam)[addr - 0x8000] = val; // This will need to be changed when VRam banking is implemented for GBC.
+		(*mVRam)[addr - ImportantMemoryAddresses::IMA_StartOfVRAM] = val; // This will need to be changed when VRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xC000 && addr <= 0xCFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfStaticWRAM && addr <= ImportantMemoryAddresses::IMA_EndOfStaticWRAM)
 	{
-		mStaticWRam[addr - 0xC000] = val;
+		mStaticWRam[addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAM] = val;
 	}
-	else if (addr >= 0xD000 && addr <= 0xDFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfSwitchWRAM && addr <= ImportantMemoryAddresses::IMA_EndOfSwitchWRAM)
 	{
-		(*mBankWRam)[addr - 0xD000] = val; // This will need to be changed when WRam banking is implemented for GBC.
+		(*mBankWRam)[addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAM] = val; // This will need to be changed when WRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xE000 && addr <= 0xEFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho && addr <= ImportantMemoryAddresses::IMA_EndOfStaticWRAMEcho)
 	{
-		mStaticWRam[addr - 0xE000] = val;
+		mStaticWRam[addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho] = val;
 	}
-	else if (addr >= 0xF000 && addr <= 0xFDFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho && addr <= ImportantMemoryAddresses::IMA_EndOfSwitchWRAMEcho)
 	{
-		(*mBankWRam)[addr - 0xF000] = val; // This will need to be changed when WRam banking is implemented for GBC.
+		(*mBankWRam)[addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho] = val; // This will need to be changed when WRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xFE00 && addr <= 0xFE9F)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfOAM && addr <= ImportantMemoryAddresses::IMA_EndOfOAM)
 	{
-		mOAM[addr - 0xFE00] = val;
+		mOAM[addr - ImportantMemoryAddresses::IMA_StartOfOAM] = val;
 	}
-	else if (addr >= 0xFEA0 && addr <= 0xFEFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfUnused && addr <= ImportantMemoryAddresses::IMA_EndOfUnused)
 	{
-		mUnused[addr - 0xFEA0] = val;
+		mUnused[addr - ImportantMemoryAddresses::IMA_StartOfUnused] = val;
 	}
-	else if (addr >= 0xFF00 && addr <= 0xFF7F)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfIORegisters && addr <= ImportantMemoryAddresses::IMA_EndOfIORegisters)
 	{
-		mIORegisters[addr - 0xFF00] = val;
+		mIORegisters[addr - ImportantMemoryAddresses::IMA_StartOfIORegisters] = val;
 	}
-	else if (addr >= 0xFF80 && addr <= 0xFFFE)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfHRAM && addr <= ImportantMemoryAddresses::IMA_EndOfHRAM)
 	{
-		mHRAM[addr - 0xFF80] = val;
+		mHRAM[addr - ImportantMemoryAddresses::IMA_StartOfHRAM] = val;
 	}
-	else if (addr == 0xFFFF)
+	else if (addr == ImportantMemoryAddresses::IMA_InterruptEnableFlags)
 	{
 		mInterruptRegister[0x00] = val;
 	}
@@ -268,92 +259,92 @@ void Memory::WriteTwoBytesAtPointer(KayosBoyPtr ptr, uint16_t val)
 {
 	uint16_t addr = ptr.GetPointerVal();
 
-	if (addr <= 0x7FFF || (addr >= 0xA000 && addr <= 0xBFFF))
+	if (addr <= ImportantMemoryAddresses::IMA_EndOfSwitableROM || (addr >= ImportantMemoryAddresses::IMA_StartOfCartridgeRam && addr <= ImportantMemoryAddresses::IMA_EndOfCartridgeRam))
 	{
 		mCartridge.writeTwoBytes(ptr, val);
 	}
-	else if (addr >= 0x8000 && addr <= 0x9FFF) // VRam. Does not check for VBlink interrupts yet.
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfVRAM && addr <= ImportantMemoryAddresses::IMA_EndOfVRAM) // VRam. Does not check for VBlink interrupts yet.
 	{
-		if (addr == 0x9FFF)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfVRAM)
 		{
-			return WriteTwoBytesIntoTwoVectors((*mVRam), mStaticWRam, addr - 0x8000, val);
+			return WriteTwoBytesIntoTwoVectors((*mVRam), mStaticWRam, addr - ImportantMemoryAddresses::IMA_StartOfVRAM, val);
 		}
 
-		WriteTwoBytesIntoVector((*mVRam), addr - 0x8000, val); // This will need to be changed when VRam banking is implemented for GBC.
+		WriteTwoBytesIntoVector((*mVRam), addr - ImportantMemoryAddresses::IMA_StartOfVRAM, val); // This will need to be changed when VRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xC000 && addr <= 0xCFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfStaticWRAM && addr <= ImportantMemoryAddresses::IMA_EndOfStaticWRAM)
 	{
-		if (addr == 0xCFFF)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfStaticWRAM)
 		{
-			return WriteTwoBytesIntoTwoVectors(mStaticWRam, (*mBankWRam), addr - 0xC000, val);
+			return WriteTwoBytesIntoTwoVectors(mStaticWRam, (*mBankWRam), addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAM, val);
 		}
 
-		WriteTwoBytesIntoVector(mStaticWRam, addr - 0xC000, val);
+		WriteTwoBytesIntoVector(mStaticWRam, addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAM, val);
 	}
-	else if (addr >= 0xD000 && addr <= 0xDFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfSwitchWRAM && addr <= ImportantMemoryAddresses::IMA_EndOfSwitchWRAM)
 	{
-		if (addr == 0xDFFF)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfSwitchWRAM)
 		{
-			return WriteTwoBytesIntoTwoVectors((*mBankWRam), mStaticWRam, addr - 0xD000, val);
+			return WriteTwoBytesIntoTwoVectors((*mBankWRam), mStaticWRam, addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAM, val);
 		}
 
-		WriteTwoBytesIntoVector((*mBankWRam), addr - 0xD000, val);// This will need to be changed when WRam banking is implemented for GBC.
+		WriteTwoBytesIntoVector((*mBankWRam), addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAM, val);// This will need to be changed when WRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xE000 && addr <= 0xEFFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho && addr <= ImportantMemoryAddresses::IMA_EndOfStaticWRAMEcho)
 	{
-		if (addr == 0xEFFF)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfStaticWRAMEcho)
 		{
-			return WriteTwoBytesIntoTwoVectors(mStaticWRam, (*mBankWRam), addr - 0xE000, val);
+			return WriteTwoBytesIntoTwoVectors(mStaticWRam, (*mBankWRam), addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho, val);
 		}
 
-		WriteTwoBytesIntoVector(mStaticWRam, addr - 0xE000, val);
+		WriteTwoBytesIntoVector(mStaticWRam, addr - ImportantMemoryAddresses::IMA_StartOfStaticWRAMEcho, val);
 	}
-	else if (addr >= 0xF000 && addr <= 0xFDFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho && addr <= ImportantMemoryAddresses::IMA_EndOfSwitchWRAMEcho)
 	{
-		if (addr == 0xF000)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfSwitchWRAMEcho)
 		{
-			return WriteTwoBytesIntoTwoVectors((*mBankWRam), mOAM, addr - 0xF000, val);
+			return WriteTwoBytesIntoTwoVectors((*mBankWRam), mOAM, addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho, val);
 		}
 
-		WriteTwoBytesIntoVector((*mBankWRam), addr - 0xF000, val);// This will need to be changed when WRam banking is implemented for GBC.
+		WriteTwoBytesIntoVector((*mBankWRam), addr - ImportantMemoryAddresses::IMA_StartOfSwitchWRAMEcho, val);// This will need to be changed when WRam banking is implemented for GBC.
 	}
-	else if (addr >= 0xFE00 && addr <= 0xFE9F)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfOAM && addr <= ImportantMemoryAddresses::IMA_EndOfOAM)
 	{
-		if (addr == 0xFE9F)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfOAM)
 		{
-			return WriteTwoBytesIntoTwoVectors(mOAM, mUnused, addr - 0xFE00, val);
+			return WriteTwoBytesIntoTwoVectors(mOAM, mUnused, addr - ImportantMemoryAddresses::IMA_StartOfOAM, val);
 		}
 
-		WriteTwoBytesIntoVector(mOAM, addr - 0xFE00, val);
+		WriteTwoBytesIntoVector(mOAM, addr - ImportantMemoryAddresses::IMA_StartOfOAM, val);
 	}
-	else if (addr >= 0xFEA0 && addr <= 0xFEFF)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfUnused && addr <= ImportantMemoryAddresses::IMA_EndOfUnused)
 	{
-		if (addr == 0xFEFF)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfUnused)
 		{
-			return WriteTwoBytesIntoTwoVectors(mUnused, mIORegisters, addr - 0xFEA0, val);
+			return WriteTwoBytesIntoTwoVectors(mUnused, mIORegisters, addr - ImportantMemoryAddresses::IMA_StartOfUnused, val);
 		}
 
-		WriteTwoBytesIntoVector(mUnused, addr - 0xFEA0, val);
+		WriteTwoBytesIntoVector(mUnused, addr - ImportantMemoryAddresses::IMA_StartOfUnused, val);
 	}
-	else if (addr >= 0xFF00 && addr <= 0xFF7F)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfIORegisters && addr <= ImportantMemoryAddresses::IMA_EndOfIORegisters)
 	{
-		if (addr == 0xFF7F)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfIORegisters)
 		{
-			return WriteTwoBytesIntoTwoVectors(mIORegisters, mHRAM, addr - 0xFF00, val);
+			return WriteTwoBytesIntoTwoVectors(mIORegisters, mHRAM, addr - ImportantMemoryAddresses::IMA_StartOfIORegisters, val);
 		}
 
-		WriteTwoBytesIntoVector(mIORegisters, addr - 0xFF00, val);
+		WriteTwoBytesIntoVector(mIORegisters, addr - ImportantMemoryAddresses::IMA_StartOfIORegisters, val);
 	}
-	else if (addr >= 0xFF80 && addr <= 0xFFFE)
+	else if (addr >= ImportantMemoryAddresses::IMA_StartOfHRAM && addr <= ImportantMemoryAddresses::IMA_EndOfHRAM)
 	{
-		if (addr == 0xFFFE)
+		if (addr == ImportantMemoryAddresses::IMA_EndOfHRAM)
 		{
-			return WriteTwoBytesIntoTwoVectors(mHRAM, mInterruptRegister, addr - 0xFF80, val);
+			return WriteTwoBytesIntoTwoVectors(mHRAM, mInterruptRegister, addr - ImportantMemoryAddresses::IMA_StartOfHRAM, val);
 		}
 
-		WriteTwoBytesIntoVector(mHRAM, addr - 0xFF80, val);
+		WriteTwoBytesIntoVector(mHRAM, addr - ImportantMemoryAddresses::IMA_StartOfHRAM, val);
 	}
-	else if (addr == 0xFFFF)
+	else if (addr == ImportantMemoryAddresses::IMA_InterruptEnableFlags)
 	{
 		printf("ERROR: Trying to get two bytes from addr 0xFFFF \n");
 	}

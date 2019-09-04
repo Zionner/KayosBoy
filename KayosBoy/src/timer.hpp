@@ -37,13 +37,13 @@ protected:
 	uint8_t GetTimerCounter();
 	uint8_t GetTimerModulo();
 	uint8_t GetTimerControl();
-	uint64_t mCycleCounter;
 
 	Memory& mMemory;
 
 	bool mIsTimerEnabled = false;
 	TimerFrequencyDivider mFrequencyDividerMode;
 	TimerFrequencyDivider mLastFrequencyDividerMode;
+	uint64_t mCycleCounter;
 };
 
 #endif // _TIMER_H_

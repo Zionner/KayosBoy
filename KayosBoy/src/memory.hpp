@@ -4,6 +4,37 @@
 #include "registers.hpp"
 #include "Cartridge.hpp"
 
+enum ImportantMemoryAddresses : uint16_t
+{
+	IMA_BootRomEnd = 0x00FF,
+	IMA_StartOfSwitchROM = 0x4000,
+	IMA_EndOfSwitableROM = 0x7FFF,
+	IMA_StartOfVRAM = 0x8000,
+	IMA_EndOfVRAM = 0x9FFF,
+	IMA_StartOfCartridgeRam = 0xA000,
+	IMA_EndOfCartridgeRam = 0xBFFF,
+	IMA_StartOfStaticWRAM = 0xC000,
+	IMA_EndOfStaticWRAM = 0xCFFF,
+	IMA_StartOfSwitchWRAM = 0xD000,
+	IMA_EndOfSwitchWRAM = 0xDFFF,
+	IMA_StartOfStaticWRAMEcho = 0xE000,
+	IMA_EndOfStaticWRAMEcho = 0xEFFF,
+	IMA_StartOfSwitchWRAMEcho = 0xF000,
+	IMA_EndOfSwitchWRAMEcho = 0xFDFF,
+	IMA_StartOfOAM = 0xFE00,
+	IMA_EndOfOAM = 0xFE9F,
+	IMA_StartOfUnused = 0xFEA0,
+	IMA_EndOfUnused = 0xFEFF,
+	IMA_StartOfIORegisters = 0xFF00,
+	IMA_InterruptFlagRegister = 0xFF0F,
+	IMA_DMAAddress = 0xFF46,
+	IMA_BootROMEnabledFlag = 0xFF50,
+	IMA_EndOfIORegisters = 0xFF7F,
+	IMA_StartOfHRAM = 0xFF80,
+	IMA_EndOfHRAM = 0xFFFE,
+	IMA_InterruptEnableFlags = 0xFFFF
+};
+
 enum MemoryState : uint8_t
 {
 	MS_BootRomLoaded = 0x00,
