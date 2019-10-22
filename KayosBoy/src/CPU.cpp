@@ -184,6 +184,8 @@ uint64_t CPU::Tick()
 	uint8_t opcode = ReadByteFromProgramCounter();
    	(this->*mOpCodeCommands[opcode])();
 
+	mMemory.HandleDMA(mTickElapsedCycles);
+
 	return mTickElapsedCycles;
 }
 

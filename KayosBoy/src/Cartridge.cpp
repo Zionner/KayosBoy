@@ -27,7 +27,7 @@ void Cartridge::writeTwoBytes(KayosBoyPtr& address, uint16_t val)
 
 uint8_t Cartridge::read(KayosBoyPtr& address)
 {
-	return mCartridgeMBC->read(address);
+ 	return mCartridgeMBC->read(address);
 }
 
 uint16_t Cartridge::readTwoBytes(KayosBoyPtr& address)

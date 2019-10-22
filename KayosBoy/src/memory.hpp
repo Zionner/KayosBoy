@@ -27,8 +27,21 @@ enum ImportantMemoryAddresses : uint16_t
 	IMA_EndOfUnused = 0xFEFF,
 	IMA_StartOfIORegisters = 0xFF00,
 	IMA_InterruptFlagRegister = 0xFF0F,
+	IMA_LCDControlRegister = 0xFF40,
+	IMA_LCDStat = 0xFF41,
+	IMA_BackGroundScrollY = 0xFF42,
+	IMA_BackGroundScrollX = 0xFF43,
+	IMA_CurrentScanline = 0xFF44,
+	IMA_LYCompare = 0xFF45,
 	IMA_DMAAddress = 0xFF46,
+	IMA_WindowPositionY = 0xFF4A,
+	IMA_WindowPositionX = 0xFF4B,
 	IMA_BootROMEnabledFlag = 0xFF50,
+	IMA_HDMASourceHighByte = 0xFF51,				//
+	IMA_HDMASourceLowByte = 0xFF52,					//
+	IMA_HDMADestinationHighByte = 0xFF53,			// HDMA is GBC only
+	IMA_HDMADestinationLowByte = 0xFF54,			//
+	IMA_HDMALengthAndMode = 0xFF55,					//
 	IMA_EndOfIORegisters = 0xFF7F,
 	IMA_StartOfHRAM = 0xFF80,
 	IMA_EndOfHRAM = 0xFFFE,
@@ -53,6 +66,13 @@ class Memory
 		void WriteByteAtPointer(KayosBoyPtr ptr, uint8_t val);
 		void WriteTwoBytesAtPointer(KayosBoyPtr ptr, uint16_t val);
 		void WriteTwoBytesIntoTwoVectors(std::vector<uint8_t>& vec1, std::vector<uint8_t>& vec2, uint16_t addr, uint16_t val);
+
+		void HandleDMA(uint64_t elapsedTicks);
+		bool IsDMAInProgress();
+
+		static const uint64_t DMACycleLength = 640;
+		static const uint64_t DMASetupCycles = 8;
+
 	protected:
 		bool LoadBootROM(char* path);
 		bool IsRunningBootRom();
@@ -61,6 +81,9 @@ class Memory
 		void WriteTwoBytesIntoVector(std::vector<uint8_t>& vec, uint16_t addr, uint16_t val);
 
 		Cartridge& mCartridge;
+
+		uint8_t mPreviousDMARegisterValue = 0x00;
+		uint64_t mDMACycles = 0;
 
 		// We're loading these from files instead of from a const value
 		// Because it allows us to nicely support multiple boot ROMs (and custom boot ROMS).

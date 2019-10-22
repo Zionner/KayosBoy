@@ -2,7 +2,8 @@
 #include "KayosBoyUtils.hpp"
 
 Memory::Memory(char* const pathToBootRom, Cartridge& cart) :
-	mCartridge(cart)
+	mCartridge(cart),
+	mDMACycles(DMACycleLength + DMASetupCycles)
 {
 	mVRam = new std::vector<uint8_t>((ImportantMemoryAddresses::IMA_EndOfVRAM - ImportantMemoryAddresses::IMA_StartOfVRAM) + 1);
 	mStaticWRam.resize((ImportantMemoryAddresses::IMA_EndOfStaticWRAM - ImportantMemoryAddresses::IMA_StartOfStaticWRAM) + 1);
@@ -29,6 +30,58 @@ bool Memory::LoadBootROM(char* const path)
 	}
 
 	return ret;
+}
+
+void Memory::HandleDMA(uint64_t elapsedTicks)
+{
+	uint8_t dmaRegister = ReadByteAtPointer(KayosBoyPtr(ImportantMemoryAddresses::IMA_DMAAddress));
+
+	if (dmaRegister == mPreviousDMARegisterValue)
+	{
+		if (mDMACycles < DMASetupCycles)
+		{
+			mDMACycles += elapsedTicks;
+			return;
+		}
+		else if (mDMACycles >= (DMACycleLength + DMASetupCycles))
+		{
+			return;
+		}
+	}
+	else
+	{
+		mDMACycles = elapsedTicks;
+		dmaRegister = mPreviousDMARegisterValue;
+		return;
+	}
+
+	mPreviousDMARegisterValue = dmaRegister;
+
+	uint8_t remainingTicksFromLastUpdate = mDMACycles % 4;
+
+	if (remainingTicksFromLastUpdate > 0)
+	{
+		mDMACycles -= remainingTicksFromLastUpdate;
+		elapsedTicks += remainingTicksFromLastUpdate;
+	}
+
+	while(elapsedTicks >= 4 && mDMACycles < (DMACycleLength + DMASetupCycles))
+	{
+		uint8_t lowerPtrByte = floor(mDMACycles / 4);
+		uint16_t srcptr = (dmaRegister << 8) + lowerPtrByte; // This is not mapped correctly.
+		uint16_t destptr = ImportantMemoryAddresses::IMA_StartOfOAM + (8 >> lowerPtrByte);
+		WriteByteAtPointer(destptr, ReadByteAtPointer(srcptr));
+
+		mDMACycles += 4;
+		elapsedTicks -= 4;
+	}
+
+	mDMACycles += elapsedTicks;
+}
+
+bool Memory::IsDMAInProgress()
+{
+	return mDMACycles >= DMASetupCycles && mDMACycles <= (DMASetupCycles + DMACycleLength);
 }
 
 bool Memory::IsRunningBootRom()
