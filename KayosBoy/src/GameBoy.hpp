@@ -4,11 +4,12 @@
 #include "CPU.hpp"
 #include "Cartridge.hpp"
 #include "timer.hpp"
+#include "gpu.hpp"
 
 class GameBoy
 {
 	public:
-		GameBoy(CPU& gameboyCPU, Memory& gameboyMemory, Cartridge& cart, Timer& timer);
+		GameBoy(CPU& gameboyCPU, Memory& gameboyMemory, Cartridge& cart, Timer& timer, GPU& gpu);
 
 		void Run();
 
@@ -27,6 +28,7 @@ class GameBoy
 		Memory& mMemory;
 		Cartridge& mCartridge;
 		Timer& mTimer;
+		GPU& mGPU;
 };
 
 #endif // _GAMEBOY_H_

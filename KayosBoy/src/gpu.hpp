@@ -33,8 +33,14 @@ public:
 
 	void Tick(uint64_t elapsedTicks);
 
+	const uint64_t ScanlineClockLength = 456;
+	const uint8_t ScanLineCount = 154;
+
 private:
 	Memory& mMemory;
+	uint64_t mFrameCounter = 0;
+
+	uint64_t mScanlineTicks;
 };
 
 #endif // _GPU_H_

@@ -26,8 +26,9 @@ int main(int argc, char* argv[])
 	Memory memory(argv[index], cart);
 	Timer timer(memory);
 	CPU gameboyCpu(memory);
+	GPU gameboyGpu(memory);
 
-	GameBoy cpuTest(gameboyCpu, memory, cart, timer);
+	GameBoy cpuTest(gameboyCpu, memory, cart, timer, gameboyGpu);
 	
 	cpuTest.Run();
 
