@@ -1011,13 +1011,22 @@ void CPU::SRL(KayosBoyPtr& addressToByteToShift)
 // SWAP
 void CPU::SWAP(ByteRegister& registerToSwap)
 {
-	printf("SWAP not implemented \n");
+	uint8_t val = registerToSwap.GetRegisterValue().ByteMemory;
+	uint8_t lowNibble = val & 0x0F;
+	uint8_t upperNibble = (val & 0xF0) >> 4;
+
+	registerToSwap.SetRegister(((upperNibble << 4) | lowNibble));
 	mTickElapsedCycles += 2;
 }
 
 void CPU::SWAP(KayosBoyPtr& addressToByteToSwap)
 {
-	printf("SWAP not implemented \n");
+	uint8_t val = mMemory.ReadByteAtPointer(addressToByteToSwap);
+	uint8_t lowNibble = val & 0x0F;
+	uint8_t upperNibble = (val & 0xF0) >> 4;
+
+	mMemory.WriteByteAtPointer(addressToByteToSwap, ((upperNibble << 4) | lowNibble));
+
 	mTickElapsedCycles += 4;
 }
 
