@@ -180,7 +180,7 @@ uint64_t CPU::Tick()
 
 	CheckForAndExecuteInterrupts();
 
-	printf("\rProgram Counter: 0x%04x", mProgramCounter.GetRegisterValue().PairedBytes);
+	//printf("\rProgram Counter: 0x%04x", mProgramCounter.GetRegisterValue().PairedBytes);
 	uint8_t opcode = ReadByteFromProgramCounter();
    	(this->*mOpCodeCommands[opcode])();
 
@@ -2386,7 +2386,7 @@ void CPU::_F9()
 
 void CPU::_FA()
 {
-	printf("_FA Unimplemented");
+	LD_PCAddress(mRegisterA);
 }
 
 void CPU::_FB()

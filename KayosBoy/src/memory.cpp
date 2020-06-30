@@ -314,6 +314,16 @@ void Memory::WriteTwoBytesAtPointer(KayosBoyPtr ptr, uint16_t val)
 
 	if (addr <= ImportantMemoryAddresses::IMA_EndOfSwitableROM || (addr >= ImportantMemoryAddresses::IMA_StartOfCartridgeRam && addr <= ImportantMemoryAddresses::IMA_EndOfCartridgeRam))
 	{
+		if (addr == ImportantMemoryAddresses::IMA_EndOfCartridgeRam)
+		{
+			uint8_t byteTwo = static_cast<uint8_t>(val >> 8);
+			uint8_t byteOne = static_cast<uint8_t>(val);
+
+			mCartridge.write(ptr, byteOne);
+			WriteByteAtPointer(ptr + 1, byteTwo);
+			return;
+		}
+
 		mCartridge.writeTwoBytes(ptr, val);
 	}
 	else if (addr >= ImportantMemoryAddresses::IMA_StartOfVRAM && addr <= ImportantMemoryAddresses::IMA_EndOfVRAM) // VRam. Does not check for VBlink interrupts yet.
